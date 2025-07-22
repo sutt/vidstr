@@ -80,7 +80,7 @@ def generate_video(
     input_video = None
     if input_video_path:
         print(f"Using initial video from: {input_video_path}")
-        input_video = types.Video.from_file(input_video_path)
+        input_video = types.Video.from_file(location=input_video_path)
 
     operation = client.models.generate_videos(
         model=VIDEO_MODEL,
@@ -164,6 +164,7 @@ def main():
         help="Path to an initial image for the video.",
     )
     parser_video.add_argument(
+        "-v",
         "--input-video",
         type=str,
         help="Path to an initial video for video extension.",
