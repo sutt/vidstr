@@ -61,7 +61,12 @@ def generate_images(prompt: str, output_dir: str, number_of_images: int):
         print(f"Saved image to {unique_image_path}")
 
 
-def generate_video(prompt: str, output_dir: str, input_image_path: str | None):
+def generate_video(
+    prompt: str,
+    output_dir: str,
+    input_image_path: str | None,
+    input_video_path: str | None,
+):
     """Generates a video from a prompt and saves it to a directory."""
     print(f"Generating video for prompt: '{prompt}'")
 
@@ -72,10 +77,16 @@ def generate_video(prompt: str, output_dir: str, input_image_path: str | None):
         print(f"Using initial image from: {input_image_path}")
         input_image = types.Image.from_file(location=input_image_path)
 
+    input_video = None
+    if input_video_path:
+        print(f"Using initial video from: {input_video_path}")
+        input_video = types.Video.from_file(input_video_path)
+
     operation = client.models.generate_videos(
         model=VIDEO_MODEL,
         prompt=prompt,
         image=input_image,
+        video=input_video,
     )
 
     print("Waiting for video generation to complete...")
@@ -106,7 +117,10 @@ def continue_video(prompt: str, output_dir: str, input_video_path: str):
 
     # Now call generate_video with the extracted frame
     generate_video(
-        prompt=prompt, output_dir=output_dir, input_image_path=last_frame_path
+        prompt=prompt,
+        output_dir=output_dir,
+        input_image_path=last_frame_path,
+        input_video_path=None,
     )
 
 
@@ -148,6 +162,11 @@ def main():
         "--input-image",
         type=str,
         help="Path to an initial image for the video.",
+    )
+    parser_video.add_argument(
+        "--input-video",
+        type=str,
+        help="Path to an initial video for video extension.",
     )
     parser_video.add_argument(
         "-o",
@@ -192,6 +211,7 @@ def main():
             prompt=args.prompt,
             output_dir=args.output_dir,
             input_image_path=args.input_image,
+            input_video_path=args.input_video,
         )
     elif args.command == "continue-video":
         continue_video(
