@@ -68,12 +68,14 @@ def main():
     )
     args = parser.parse_args()
 
+    video_filename = os.path.splitext(os.path.basename(args.video_path))[0]
+    output_filename = f"{video_filename}_{args.frame}_frame.png"
+
     if not args.output:
         video_dir = os.path.dirname(args.video_path)
-        video_filename = os.path.splitext(os.path.basename(args.video_path))[0]
-        args.output = os.path.join(
-            video_dir, f"{video_filename}_{args.frame}_frame.png"
-        )
+        args.output = os.path.join(video_dir, output_filename)
+    elif os.path.isdir(args.output):
+        args.output = os.path.join(args.output, output_filename)
 
     get_frame(args.video_path, args.frame, args.output)
 
