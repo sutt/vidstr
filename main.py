@@ -5,7 +5,7 @@ import time
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
-from PIL import Image
+# from PIL import Image
 
 load_dotenv()
 
@@ -47,7 +47,7 @@ def generate_video(prompt: str, output_dir: str, input_image_path: str | None):
     input_image = None
     if input_image_path:
         print(f"Using initial image from: {input_image_path}")
-        input_image = Image.open(input_image_path)
+        input_image = types.Image.from_file(location=input_image_path)
 
     operation = client.models.generate_videos(
         model=VIDEO_MODEL,
