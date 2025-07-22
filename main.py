@@ -3,9 +3,9 @@ import os
 import time
 
 from dotenv import load_dotenv
-from google import genai
 from google.genai import types
 from get_frame import get_frame
+from client import get_client
 # from PIL import Image
 
 load_dotenv()
@@ -35,12 +35,10 @@ def get_unique_filepath(filepath):
 IMAGE_MODEL = "imagen-4.0-ultra-generate-preview-06-06"
 VIDEO_MODEL = "veo-2.0-generate-001"
 
-client = genai.Client(
-    api_key=os.environ.get("GEMINI_API_KEY"),
-)
 
-
-def generate_images(prompt: str, output_dir: str, number_of_images: int):
+def generate_images(
+    client, prompt: str, output_dir: str, number_of_images: int
+):
     """Generates images from a prompt and saves them to a directory."""
     print(f"Generating {number_of_images} image(s) for prompt: '{prompt}'")
 
@@ -62,6 +60,7 @@ def generate_images(prompt: str, output_dir: str, number_of_images: int):
 
 
 def generate_video(
+    client,
     prompt: str,
     output_dir: str,
     input_image_path: str | None,
@@ -103,7 +102,7 @@ def generate_video(
     print(f"Saved video to {unique_video_path}")
 
 
-def continue_video(prompt: str, output_dir: str, input_video_path: str):
+def continue_video(client, prompt: str, output_dir: str, input_video_path: str):
     """Continues a video from a prompt and an existing video."""
     print(f"Continuing video from '{input_video_path}' with prompt: '{prompt}'")
 
@@ -117,6 +116,7 @@ def continue_video(prompt: str, output_dir: str, input_video_path: str):
 
     # Now call generate_video with the extracted frame
     generate_video(
+        client=client,
         prompt=prompt,
         output_dir=output_dir,
         input_image_path=last_frame_path,
@@ -127,6 +127,9 @@ def continue_video(prompt: str, output_dir: str, input_video_path: str):
 def main():
     parser = argparse.ArgumentParser(
         description="Generate images or video from a text prompt."
+    )
+    parser.add_argument(
+        "--vertex", action="store_true", help="Use Vertex AI instead of Gemini API."
     )
     subparsers = parser.add_subparsers(
         dest="command", required=True, help="sub-command help"
@@ -201,14 +204,24 @@ def main():
 
     args = parser.parse_args()
 
+    if args.vertex:
+        os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "true"
+    else:
+        # CLI flag takes precedence, default to Gemini API
+        os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "false"
+
+    client = get_client()
+
     if args.command == "image":
         generate_images(
+            client=client,
             prompt=args.prompt,
             output_dir=args.output_dir,
             number_of_images=args.number_of_images,
         )
     elif args.command == "video":
         generate_video(
+            client=client,
             prompt=args.prompt,
             output_dir=args.output_dir,
             input_image_path=args.input_image,
@@ -216,6 +229,7 @@ def main():
         )
     elif args.command == "continue-video":
         continue_video(
+            client=client,
             prompt=args.prompt,
             output_dir=args.output_dir,
             input_video_path=args.input_video,
