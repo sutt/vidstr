@@ -5,6 +5,7 @@ import time
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
+from get_frame import get_frame
 # from PIL import Image
 
 load_dotenv()
@@ -68,6 +69,24 @@ def generate_video(prompt: str, output_dir: str, input_image_path: str | None):
     print(f"Saved video to {video_path}")
 
 
+def continue_video(prompt: str, output_dir: str, input_video_path: str):
+    """Continues a video from a prompt and an existing video."""
+    print(f"Continuing video from '{input_video_path}' with prompt: '{prompt}'")
+
+    os.makedirs(output_dir, exist_ok=True)
+
+    last_frame_path = os.path.join(output_dir, "last_frame.png")
+    print(f"Extracting last frame to {last_frame_path}...")
+    get_frame(
+        video_path=input_video_path, frame_type="last", output_path=last_frame_path
+    )
+
+    # Now call generate_video with the extracted frame
+    generate_video(
+        prompt=prompt, output_dir=output_dir, input_image_path=last_frame_path
+    )
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Generate images or video from a text prompt."
@@ -115,6 +134,28 @@ def main():
         help="Directory to save generated video.",
     )
 
+    # Video continuation subcommand
+    parser_continue_video = subparsers.add_parser(
+        "continue-video", help="Continue a video from its last frame."
+    )
+    parser_continue_video.add_argument(
+        "prompt", type=str, help="The text prompt for video generation."
+    )
+    parser_continue_video.add_argument(
+        "-i",
+        "--input-video",
+        type=str,
+        required=True,
+        help="Path to an existing video to continue from.",
+    )
+    parser_continue_video.add_argument(
+        "-o",
+        "--output-dir",
+        type=str,
+        default="data/tmp",
+        help="Directory to save generated video and last frame.",
+    )
+
     args = parser.parse_args()
 
     if args.command == "image":
@@ -128,6 +169,12 @@ def main():
             prompt=args.prompt,
             output_dir=args.output_dir,
             input_image_path=args.input_image,
+        )
+    elif args.command == "continue-video":
+        continue_video(
+            prompt=args.prompt,
+            output_dir=args.output_dir,
+            input_video_path=args.input_video,
         )
 
 
