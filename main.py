@@ -11,6 +11,27 @@ from get_frame import get_frame
 load_dotenv()
 
 
+def get_unique_filepath(filepath):
+    """
+    If a file exists at the given path, appends an incremental counter
+    to the filename until a unique path is found.
+    e.g., 'image.png' -> 'image-0001.png', 'image-0002.png'
+    """
+    if not os.path.exists(filepath):
+        return filepath
+
+    directory, filename = os.path.split(filepath)
+    name, ext = os.path.splitext(filename)
+    counter = 1
+
+    while True:
+        new_filename = f"{name}-{counter:04d}{ext}"
+        new_filepath = os.path.join(directory, new_filename)
+        if not os.path.exists(new_filepath):
+            return new_filepath
+        counter += 1
+
+
 IMAGE_MODEL = "imagen-4.0-ultra-generate-preview-06-06"
 VIDEO_MODEL = "veo-2.0-generate-001"
 
@@ -35,8 +56,9 @@ def generate_images(prompt: str, output_dir: str, number_of_images: int):
 
     for i, generated_image in enumerate(response.generated_images):
         image_path = os.path.join(output_dir, f"image_{i}.png")
-        generated_image.image.save(image_path)
-        print(f"Saved image to {image_path}")
+        unique_image_path = get_unique_filepath(image_path)
+        generated_image.image.save(unique_image_path)
+        print(f"Saved image to {unique_image_path}")
 
 
 def generate_video(prompt: str, output_dir: str, input_image_path: str | None):
@@ -63,10 +85,11 @@ def generate_video(prompt: str, output_dir: str, input_image_path: str | None):
 
     video = operation.response.generated_videos[0]
     video_path = os.path.join(output_dir, "video.mp4")
-    print(f"Downloading video to {video_path}...")
+    unique_video_path = get_unique_filepath(video_path)
+    print(f"Downloading video to {unique_video_path}...")
     client.files.download(file=video.video)
-    video.video.save(video_path)
-    print(f"Saved video to {video_path}")
+    video.video.save(unique_video_path)
+    print(f"Saved video to {unique_video_path}")
 
 
 def continue_video(prompt: str, output_dir: str, input_video_path: str):

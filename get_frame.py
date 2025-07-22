@@ -3,6 +3,27 @@ import os
 import cv2
 
 
+def get_unique_filepath(filepath):
+    """
+    If a file exists at the given path, appends an incremental counter
+    to the filename until a unique path is found.
+    e.g., 'image.png' -> 'image-0001.png', 'image-0002.png'
+    """
+    if not os.path.exists(filepath):
+        return filepath
+
+    directory, filename = os.path.split(filepath)
+    name, ext = os.path.splitext(filename)
+    counter = 1
+
+    while True:
+        new_filename = f"{name}-{counter:04d}{ext}"
+        new_filepath = os.path.join(directory, new_filename)
+        if not os.path.exists(new_filepath):
+            return new_filepath
+        counter += 1
+
+
 def get_frame(video_path: str, frame_type: str, output_path: str):
     """Extracts the first or last frame from a video and saves it as an image."""
     if not os.path.exists(video_path):
@@ -77,7 +98,8 @@ def main():
     elif os.path.isdir(args.output):
         args.output = os.path.join(args.output, output_filename)
 
-    get_frame(args.video_path, args.frame, args.output)
+    output_path = get_unique_filepath(args.output)
+    get_frame(args.video_path, args.frame, output_path)
 
 
 if __name__ == "__main__":
