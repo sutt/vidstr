@@ -11,3 +11,7 @@ src/*.egg-info
 .env
 data/
 
+
+# Agro worktrees
+trees/
+.agdocs
