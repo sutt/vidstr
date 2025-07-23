@@ -86,8 +86,13 @@ def generate_video(
     is_vertex = os.environ.get("GOOGLE_GENAI_USE_VERTEXAI") == "true"
     
     # Generate unique filename for bucket output
+    prefix = "video"
+    if input_video_path:
+        prefix = os.path.splitext(os.path.basename(input_video_path))[0]
+    elif input_image_path:
+        prefix = os.path.splitext(os.path.basename(input_image_path))[0]
     unique_id = str(uuid.uuid4())[:8]
-    bucket_output_uri = f"gs://hello-world-123/video-{unique_id}.mp4"
+    bucket_output_uri = f"gs://hello-world-123/{prefix}-{unique_id}"
 
     # Configure operation based on whether we're using Vertex AI
     if is_vertex:
@@ -115,29 +120,16 @@ def generate_video(
         time.sleep(10)
         operation = client.operations.get(operation)
 
-    print("\n--- DEBUG: Operation object ---")
-    print(f"Operation done: {operation.done}")
-    print(f"Operation error: {operation.error}")
-    print(f"Operation response: {operation.response}")
-    print(f"Operation result: {operation.result}")
-    if hasattr(operation, 'metadata'):
-        print(f"Operation metadata: {operation.metadata}")
-    print("--- END DEBUG ---\n")
 
     if operation.error:
         print(f"ERROR: Video generation failed: {operation.error.message}")
         return
 
     if is_vertex:
-        # For Vertex AI with bucket output, check operation.result
-        if operation.result and hasattr(operation.result, 'generated_videos'):
-            video = operation.result.generated_videos[0]
-            print(f"Video generated and saved to GCS bucket: {video.video.uri}")
-            return
-        else:
-            print("ERROR: Video generation completed but no result found in operation.result")
-            print("Expected operation.result.generated_videos to contain the GCS URI")
-            return
+        # For Vertex AI with bucket output, the video is in the GCS bucket
+        video = operation.result.generated_videos[0]
+        print(f"Video generated and saved to GCS bucket: {video.video.uri}")
+        return
     else:
         # For Gemini API, check operation.response
         if not operation.response:
