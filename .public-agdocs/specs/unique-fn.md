@@ -1,0 +1,1 @@
+for image gen, video gen, and get_frame, add default behavior to create unique fns via adding incremental counter "-0001".ext, "-0002".ext, etc to the filenames.

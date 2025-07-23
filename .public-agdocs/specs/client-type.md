@@ -1,0 +1,1 @@
+add the proper type to client arg in main

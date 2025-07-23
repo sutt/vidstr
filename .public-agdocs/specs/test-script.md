@@ -1,0 +1,1 @@
+build a simple-test.sh that calls the main functionality of each thing in readme and adds visual separation for each command
