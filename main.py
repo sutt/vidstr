@@ -1,6 +1,7 @@
 import argparse
 import os
 import time
+import uuid
 
 from dotenv import load_dotenv
 from google import genai
@@ -82,12 +83,32 @@ def generate_video(
         print(f"Using initial video from: {input_video_path}")
         input_video = types.Video.from_file(location=input_video_path)
 
-    operation = client.models.generate_videos(
-        model=VIDEO_MODEL,
-        prompt=prompt,
-        image=input_image,
-        video=input_video,
-    )
+    is_vertex = os.environ.get("GOOGLE_GENAI_USE_VERTEXAI") == "true"
+    
+    # Generate unique filename for bucket output
+    unique_id = str(uuid.uuid4())[:8]
+    bucket_output_uri = f"gs://hello-world-123/video-{unique_id}.mp4"
+
+    # Configure operation based on whether we're using Vertex AI
+    if is_vertex:
+        operation = client.models.generate_videos(
+            model=VIDEO_MODEL,
+            prompt=prompt,
+            image=input_image,
+            video=input_video,
+            config=types.GenerateVideosConfig(
+                aspect_ratio="16:9",
+                output_gcs_uri=bucket_output_uri,
+            ),
+        )
+        print(f"Using bucket output: {bucket_output_uri}")
+    else:
+        operation = client.models.generate_videos(
+            model=VIDEO_MODEL,
+            prompt=prompt,
+            image=input_image,
+            video=input_video,
+        )
 
     print("Waiting for video generation to complete...")
     while not operation.done:
@@ -95,29 +116,34 @@ def generate_video(
         operation = client.operations.get(operation)
 
     print("\n--- DEBUG: Operation object ---")
-    print(operation)
+    print(f"Operation done: {operation.done}")
+    print(f"Operation error: {operation.error}")
+    print(f"Operation response: {operation.response}")
+    print(f"Operation result: {operation.result}")
+    if hasattr(operation, 'metadata'):
+        print(f"Operation metadata: {operation.metadata}")
     print("--- END DEBUG ---\n")
 
     if operation.error:
         print(f"ERROR: Video generation failed: {operation.error.message}")
         return
 
-    if not operation.response:
-        print("ERROR: Video generation completed but returned no response.")
-        print(
-            "This can happen if using Vertex AI with local files, which is not supported."
-        )
-        return
-
-    is_vertex = os.environ.get("GOOGLE_GENAI_USE_VERTEXAI") == "true"
-
     if is_vertex:
-        # For Vertex AI, the result is in `operation.result` and is a GCS URI.
-        video = operation.result.generated_videos[0]
-        print(f"Video generated at GCS URI: {video.video.uri}")
-        print("Manual download required from the GCS bucket.")
+        # For Vertex AI with bucket output, check operation.result
+        if operation.result and hasattr(operation.result, 'generated_videos'):
+            video = operation.result.generated_videos[0]
+            print(f"Video generated and saved to GCS bucket: {video.video.uri}")
+            return
+        else:
+            print("ERROR: Video generation completed but no result found in operation.result")
+            print("Expected operation.result.generated_videos to contain the GCS URI")
+            return
     else:
-        # For Gemini API, the result is in `operation.response` and is downloadable.
+        # For Gemini API, check operation.response
+        if not operation.response:
+            print("ERROR: Video generation completed but returned no response.")
+            return
+            
         video = operation.response.generated_videos[0]
         video_path = os.path.join(output_dir, "video.mp4")
         unique_video_path = get_unique_filepath(video_path)
