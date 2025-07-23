@@ -3,6 +3,7 @@ import os
 import time
 
 from dotenv import load_dotenv
+from google import genai
 from google.genai import types
 from get_frame import get_frame
 from client import get_client
@@ -37,7 +38,7 @@ VIDEO_MODEL = "veo-2.0-generate-001"
 
 
 def generate_images(
-    client, prompt: str, output_dir: str, number_of_images: int
+    client: genai.Client, prompt: str, output_dir: str, number_of_images: int
 ):
     """Generates images from a prompt and saves them to a directory."""
     print(f"Generating {number_of_images} image(s) for prompt: '{prompt}'")
@@ -60,7 +61,7 @@ def generate_images(
 
 
 def generate_video(
-    client,
+    client: genai.Client,
     prompt: str,
     output_dir: str,
     input_image_path: str | None,
@@ -102,7 +103,7 @@ def generate_video(
     print(f"Saved video to {unique_video_path}")
 
 
-def continue_video(client, prompt: str, output_dir: str, input_video_path: str):
+def continue_video(client: genai.Client, prompt: str, output_dir: str, input_video_path: str):
     """Continues a video from a prompt and an existing video."""
     print(f"Continuing video from '{input_video_path}' with prompt: '{prompt}'")
 
