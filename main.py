@@ -94,13 +94,37 @@ def generate_video(
         time.sleep(10)
         operation = client.operations.get(operation)
 
-    video = operation.response.generated_videos[0]
-    video_path = os.path.join(output_dir, "video.mp4")
-    unique_video_path = get_unique_filepath(video_path)
-    print(f"Downloading video to {unique_video_path}...")
-    client.files.download(file=video.video)
-    video.video.save(unique_video_path)
-    print(f"Saved video to {unique_video_path}")
+    print("\n--- DEBUG: Operation object ---")
+    print(operation)
+    print("--- END DEBUG ---\n")
+
+    if operation.error:
+        print(f"ERROR: Video generation failed: {operation.error.message}")
+        return
+
+    if not operation.response:
+        print("ERROR: Video generation completed but returned no response.")
+        print(
+            "This can happen if using Vertex AI with local files, which is not supported."
+        )
+        return
+
+    is_vertex = os.environ.get("GOOGLE_GENAI_USE_VERTEXAI") == "true"
+
+    if is_vertex:
+        # For Vertex AI, the result is in `operation.result` and is a GCS URI.
+        video = operation.result.generated_videos[0]
+        print(f"Video generated at GCS URI: {video.video.uri}")
+        print("Manual download required from the GCS bucket.")
+    else:
+        # For Gemini API, the result is in `operation.response` and is downloadable.
+        video = operation.response.generated_videos[0]
+        video_path = os.path.join(output_dir, "video.mp4")
+        unique_video_path = get_unique_filepath(video_path)
+        print(f"Downloading video to {unique_video_path}...")
+        client.files.download(file=video.video)
+        video.video.save(unique_video_path)
+        print(f"Saved video to {unique_video_path}")
 
 
 def continue_video(client: genai.Client, prompt: str, output_dir: str, input_video_path: str):
