@@ -2,6 +2,11 @@
 
 Create continuous loop videos from cli.
 
+### Resources
+See write-up on initial progress building with [Agro](https://github.com/sutt/agro): [Agro-Builds-Vidster-1](https://github.com/sutt/agro/blob/master/docs/case-studies/aba-vidster-1.md)
+
+See [DevLog](./docs/dev-log-v1.md)
+
 ### Setup
 
 Add 
