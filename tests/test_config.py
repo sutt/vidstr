@@ -1,0 +1,76 @@
+import os
+import sys
+import tempfile
+import yaml
+import pytest
+from google.genai import types
+
+# Add project root to path to allow importing main
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from main import load_config
+
+
+def test_load_config_and_create_generate_videos_config():
+    """
+    Tests that the config loaded from YAML can be used to instantiate
+    a GenerateVideosConfig object.
+    """
+    config_data = {
+        "video_generation": {
+            "number_of_videos": 2,
+            "fps": 30,
+            "duration_seconds": 10,
+            "aspect_ratio": "9:16",
+            "resolution": "720p",
+            "person_generation": "disallow",
+            "enhance_prompt": False,
+            "generate_audio": True,
+            "compression_quality": "low",
+        }
+    }
+
+    with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".yaml") as tmp:
+        yaml.dump(config_data, tmp)
+        config_path = tmp.name
+
+    try:
+        loaded_config = load_config(config_path)
+        assert loaded_config == config_data["video_generation"]
+
+        # Test instantiation of GenerateVideosConfig
+        try:
+            video_config_obj = types.GenerateVideosConfig(**loaded_config)
+            assert video_config_obj.number_of_videos == 2
+            assert video_config_obj.fps == 30
+            assert video_config_obj.duration_seconds == 10
+            assert video_config_obj.aspect_ratio == "9:16"
+            assert video_config_obj.resolution == "720p"
+            assert video_config_obj.person_generation == "disallow"
+            assert not video_config_obj.enhance_prompt
+            assert video_config_obj.generate_audio
+            assert video_config_obj.compression_quality == "low"
+        except Exception as e:
+            pytest.fail(
+                f"Failed to instantiate GenerateVideosConfig with loaded config: {e}"
+            )
+
+    finally:
+        os.remove(config_path)
+
+
+def test_load_config_empty_file():
+    """Tests loading an empty config file."""
+    with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".yaml") as tmp:
+        config_path = tmp.name
+
+    try:
+        loaded_config = load_config(config_path)
+        assert loaded_config == {}
+    finally:
+        os.remove(config_path)
+
+
+def test_load_config_no_file():
+    """Tests loading when config file does not exist."""
+    loaded_config = load_config("non_existent_file.yaml")
+    assert loaded_config == {}

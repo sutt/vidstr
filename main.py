@@ -2,6 +2,7 @@ import argparse
 import os
 import time
 import uuid
+import yaml
 
 from dotenv import load_dotenv
 from google import genai
@@ -11,6 +12,15 @@ from client import get_client
 # from PIL import Image
 
 load_dotenv()
+
+
+def load_config(config_path="config.yaml"):
+    """Loads video generation config from a YAML file."""
+    if not os.path.exists(config_path):
+        return {}
+    with open(config_path, "r") as f:
+        config = yaml.safe_load(f)
+    return config.get("video_generation", {})
 
 
 def get_unique_filepath(filepath):
@@ -68,6 +78,7 @@ def generate_video(
     input_image_path: str | None,
     input_video_path: str | None,
     last_frame_path: str | None,
+    config: dict,
 ):
     """Generates a video from a prompt and saves it to a directory."""
     print(f"Generating video for prompt: '{prompt}'")
@@ -101,29 +112,27 @@ def generate_video(
     bucket_output_uri = f"gs://hello-world-123/{prefix}-{unique_id}"
 
     # Configure operation based on whether we're using Vertex AI
-    config_params = {}
+    video_config = config.copy()
     if last_frame:
-        config_params["last_frame"] = last_frame
+        video_config["last_frame"] = last_frame
 
     if is_vertex:
-        config_params["aspect_ratio"] = "16:9"
-        config_params["output_gcs_uri"] = bucket_output_uri
+        video_config["output_gcs_uri"] = bucket_output_uri
         operation = client.models.generate_videos(
             model=VIDEO_MODEL,
             prompt=prompt,
             image=input_image,
             video=input_video,
-            config=types.GenerateVideosConfig(**config_params),
+            config=types.GenerateVideosConfig(**video_config),
         )
         print(f"Using bucket output: {bucket_output_uri}")
     else:
-        config = types.GenerateVideosConfig(**config_params) if config_params else None
         operation = client.models.generate_videos(
             model=VIDEO_MODEL,
             prompt=prompt,
             image=input_image,
             video=input_video,
-            config=config,
+            config=types.GenerateVideosConfig(**video_config),
         )
 
     print("Waiting for video generation to complete...")
@@ -156,7 +165,13 @@ def generate_video(
         print(f"Saved video to {unique_video_path}")
 
 
-def continue_video(client: genai.Client, prompt: str, output_dir: str, input_video_path: str):
+def continue_video(
+    client: genai.Client,
+    prompt: str,
+    output_dir: str,
+    input_video_path: str,
+    config: dict,
+):
     """Continues a video from a prompt and an existing video."""
     print(f"Continuing video from '{input_video_path}' with prompt: '{prompt}'")
 
@@ -176,6 +191,7 @@ def continue_video(client: genai.Client, prompt: str, output_dir: str, input_vid
         input_image_path=last_frame_path,
         input_video_path=None,
         last_frame_path=None,
+        config=config,
     )
 
 
@@ -272,6 +288,7 @@ def main():
         os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "false"
 
     client = get_client()
+    config = load_config()
 
     if args.command == "image":
         generate_images(
@@ -288,6 +305,7 @@ def main():
             input_image_path=args.input_image,
             input_video_path=args.input_video,
             last_frame_path=args.last_frame,
+            config=config,
         )
     elif args.command == "continue-video":
         continue_video(
@@ -295,6 +313,7 @@ def main():
             prompt=args.prompt,
             output_dir=args.output_dir,
             input_video_path=args.input_video,
+            config=config,
         )
 
 
