@@ -67,6 +67,7 @@ def generate_video(
     output_dir: str,
     input_image_path: str | None,
     input_video_path: str | None,
+    last_frame_path: str | None,
 ):
     """Generates a video from a prompt and saves it to a directory."""
     print(f"Generating video for prompt: '{prompt}'")
@@ -77,6 +78,11 @@ def generate_video(
     if input_image_path:
         print(f"Using initial image from: {input_image_path}")
         input_image = types.Image.from_file(location=input_image_path)
+
+    last_frame = None
+    if last_frame_path:
+        print(f"Using last frame from: {last_frame_path}")
+        last_frame = types.Image.from_file(location=last_frame_path)
 
     input_video = None
     if input_video_path:
@@ -95,24 +101,29 @@ def generate_video(
     bucket_output_uri = f"gs://hello-world-123/{prefix}-{unique_id}"
 
     # Configure operation based on whether we're using Vertex AI
+    config_params = {}
+    if last_frame:
+        config_params["last_frame"] = last_frame
+
     if is_vertex:
+        config_params["aspect_ratio"] = "16:9"
+        config_params["output_gcs_uri"] = bucket_output_uri
         operation = client.models.generate_videos(
             model=VIDEO_MODEL,
             prompt=prompt,
             image=input_image,
             video=input_video,
-            config=types.GenerateVideosConfig(
-                aspect_ratio="16:9",
-                output_gcs_uri=bucket_output_uri,
-            ),
+            config=types.GenerateVideosConfig(**config_params),
         )
         print(f"Using bucket output: {bucket_output_uri}")
     else:
+        config = types.GenerateVideosConfig(**config_params) if config_params else None
         operation = client.models.generate_videos(
             model=VIDEO_MODEL,
             prompt=prompt,
             image=input_image,
             video=input_video,
+            config=config,
         )
 
     print("Waiting for video generation to complete...")
@@ -164,6 +175,7 @@ def continue_video(client: genai.Client, prompt: str, output_dir: str, input_vid
         output_dir=output_dir,
         input_image_path=last_frame_path,
         input_video_path=None,
+        last_frame_path=None,
     )
 
 
@@ -214,6 +226,12 @@ def main():
         "--input-video",
         type=str,
         help="Path to an initial video for video extension.",
+    )
+    parser_video.add_argument(
+        "-l",
+        "--last-frame",
+        type=str,
+        help="Path to an image to use as the last frame for interpolation.",
     )
     parser_video.add_argument(
         "-o",
@@ -269,6 +287,7 @@ def main():
             output_dir=args.output_dir,
             input_image_path=args.input_image,
             input_video_path=args.input_video,
+            last_frame_path=args.last_frame,
         )
     elif args.command == "continue-video":
         continue_video(
