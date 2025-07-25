@@ -15,16 +15,28 @@ from client import get_client, download_from_gcs
 load_dotenv()
 
 
-def load_config(section: str, config_path="config.yaml"):
-    """Loads a config section from a YAML file."""
-    if not os.path.exists(config_path):
-        return {}
-    with open(config_path, "r") as f:
-        config = yaml.safe_load(f)
-    if config is not None:
-        return config.get(section, {})
-    else:
-        return {}
+def load_config(
+    section: str, profile_path: str | None = None, default_config_path="config.yaml"
+):
+    """Loads a config section from YAML files, with profile overriding defaults."""
+    # Load defaults
+    config = {}
+    if os.path.exists(default_config_path):
+        with open(default_config_path, "r") as f:
+            default_yaml = yaml.safe_load(f)
+            if default_yaml:
+                config = default_yaml.get(section, {})
+
+    # Load profile and override
+    if profile_path and os.path.exists(profile_path):
+        print(f"Loading profile settings from: {profile_path}")
+        with open(profile_path, "r") as f:
+            profile_yaml = yaml.safe_load(f)
+            if profile_yaml:
+                profile_section = profile_yaml.get(section, {})
+                config.update(profile_section)
+
+    return config
 
 
 def get_unique_filepath(filepath):
@@ -216,6 +228,12 @@ def main():
     parser.add_argument(
         "--vertex", action="store_true", help="Use Vertex AI instead of Gemini API."
     )
+    parser.add_argument(
+        "-c",
+        "--config",
+        type=str,
+        help="Path to a profile.yaml for custom configuration.",
+    )
     subparsers = parser.add_subparsers(
         dest="command", required=True, help="sub-command help"
     )
@@ -301,9 +319,28 @@ def main():
         # CLI flag takes precedence, default to Gemini API
         os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "false"
 
+    # Determine profile path
+    profile_path = None
+    if args.config:
+        if os.path.exists(args.config):
+            profile_path = args.config
+        else:
+            print(f"Warning: Specified profile file not found: {args.config}")
+    else:
+        # Search in output_dir then root
+        search_paths = []
+        if hasattr(args, "output_dir") and args.output_dir:
+            search_paths.append(os.path.join(args.output_dir, "profile.yaml"))
+        search_paths.append("profile.yaml")
+
+        for p in search_paths:
+            if os.path.exists(p):
+                profile_path = p
+                break
+
     client = get_client()
-    video_config = load_config("video_generation")
-    image_config = load_config("image_generation")
+    video_config = load_config("video_generation", profile_path=profile_path)
+    image_config = load_config("image_generation", profile_path=profile_path)
 
     if args.command == "image":
         if args.number_of_images is not None:
