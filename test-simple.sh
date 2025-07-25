@@ -27,7 +27,7 @@ python main.py continue-video -i data/simple-test/river1.mp4 -o data/simple-test
 echo ""
 
 echo "# create video (starting frame + last frame)"
-python main.py --vertex video -i data/simple-test/stub_river1_last_frame.png -l data/simple-test/stub_river1_first_frame.png 'moving shot, from boat moving down the river camera pans across lush forest and wildlife'
+python main.py --vertex video -i data/simple-test/stub_river1_last_frame.png -l data/simple-test/stub_river1_first_frame.png -o data/simple-test-output 'moving shot, from boat moving down the river camera pans across lush forest and wildlife'
 echo ""
 
 echo "final result of output dir ----"
