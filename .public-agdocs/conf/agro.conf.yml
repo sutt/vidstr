@@ -54,7 +54,8 @@ AGENT_CONFIG:
 #     args: ["--yes", "--no-check-update", "--no-attribute-author", "--no-attribute-committer", "--no-attribute-co-authored-by"]
   claude:
     task_file_arg_template: null
-    args: ["-d", "--allowedTools", "Write Edit MultiEdit", "--max-turns", "100", "-p"]
+    # args: ["-d", "--allowedTools", "Write Edit MultiEdit", "--max-turns", "100", "-p"]
+    args: ["-d", "--allowedTools", "Write Edit MultiEdit WebFetch WebSearch", "--max-turns", "100", "-p"]
 #   gemini:
 #     task_file_arg_template: null
 #     args: ["-y"]

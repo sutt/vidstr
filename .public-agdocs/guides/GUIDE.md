@@ -1,7 +1,6 @@
 # Vidstr 
-Utilize google-genai client to to query veo and imagegen models.
+Utilize google-genai client to to query and generate veo and imagegen models.
 
-Will have some functionality for api-key and vertex auth
 
 ### model conventions
 - for image generation utilize model: "imagen-4.0-ultra-generate-preview-06-06"
@@ -15,3 +14,9 @@ Will have some functionality for api-key and vertex auth
     - https://googleapis.github.io/python-genai/index.html
     - https://googleapis.github.io/python-genai/genai.html
     - https://github.com/googleapis/python-genai
+
+### api conventions
+- Will have some functionality for gemini api-key auth and some vertex auth. Default is gemini api key auth.
+
+### coding agent guidance
+- should be available in AGENTS.md
