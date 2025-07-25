@@ -10,6 +10,7 @@ dependencies = [
     "python-dotenv",
     "opencv-python",
     "pyyaml",
+    "google-cloud-storage",
 ]
 
 [project.optional-dependencies]

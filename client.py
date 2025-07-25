@@ -1,5 +1,6 @@
 import os
 import google.genai as genai
+from google.cloud import storage
 
 
 def get_client() -> genai.Client:
@@ -40,6 +41,34 @@ def test_connection(client: genai.Client):
     except Exception as e:
         print(f"Connection test failed: {e}")
         return False
+
+
+def download_from_gcs(gcs_uri: str, destination_file_path: str):
+    """
+    Downloads a file from a GCS URI to a local path.
+    gcs_uri should be in the format gs://bucket_name/path/to/blob
+    """
+    if not gcs_uri.startswith("gs://"):
+        raise ValueError(f"Invalid GCS URI: {gcs_uri}. Must start with gs://")
+
+    # Using ADC, no explicit credentials needed if running in a configured environment
+    storage_client = storage.Client()
+
+    try:
+        bucket_name, blob_name = gcs_uri[5:].split("/", 1)
+        bucket = storage_client.bucket(bucket_name)
+        blob = bucket.blob(blob_name)
+
+        # Ensure the destination directory exists
+        destination_dir = os.path.dirname(destination_file_path)
+        if destination_dir:
+            os.makedirs(destination_dir, exist_ok=True)
+
+        blob.download_to_filename(destination_file_path)
+        print(f"Successfully downloaded {gcs_uri} to {destination_file_path}")
+    except Exception as e:
+        print(f"Failed to download {gcs_uri}. Error: {e}")
+        raise
 
 
 if __name__ == "__main__":

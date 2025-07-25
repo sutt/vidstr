@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 from get_frame import get_frame
-from client import get_client
+from client import get_client, download_from_gcs
 # from PIL import Image
 
 load_dotenv()
@@ -156,7 +156,13 @@ def generate_video(
     if is_vertex:
         # For Vertex AI with bucket output, the video is in the GCS bucket
         video = operation.result.generated_videos[0]
-        print(f"Video generated and saved to GCS bucket: {video.video.uri}")
+        gcs_uri = video.video.uri
+        print(f"Video generated and saved to GCS bucket: {gcs_uri}")
+
+        video_path = os.path.join(output_dir, "video.mp4")
+        unique_video_path = get_unique_filepath(video_path)
+        print(f"Downloading video from GCS to {unique_video_path}...")
+        download_from_gcs(gcs_uri, unique_video_path)
         return
     else:
         # For Gemini API, check operation.response
