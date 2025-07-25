@@ -1,11 +1,13 @@
 # Default configuration for video generation
 video_generation:
   number_of_videos: 1
-  fps: 24
-  duration_seconds: 5
+  duration_seconds: 8
   aspect_ratio: "16:9"
-  resolution: "1080p" # e.g., "1080p", "720p"
-  person_generation: "allow" # "allow" or "disallow"
   enhance_prompt: true
-  generate_audio: false
-  compression_quality: "high" # "high", "medium", "low"
+  # not supported in gemini-api, only vertex
+  # person_generation: "allow" # "allow" or "disallow"
+  # fps: 24
+  # generate_audio: false
+  # not supported in vertex-api either
+  # resolution: "720p" # e.g., "1080p", "720p"  # 1080p not supported veo-2
+  # compression_quality: "OPTIMIZED" # "LOSELESS"

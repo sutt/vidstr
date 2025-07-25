@@ -18,14 +18,15 @@ def test_load_config_and_create_generate_videos_config():
     config_data = {
         "video_generation": {
             "number_of_videos": 2,
-            "fps": 30,
             "duration_seconds": 10,
             "aspect_ratio": "9:16",
+            "enhance_prompt": False,
+            # only for vertex-api
             "resolution": "720p",
             "person_generation": "disallow",
-            "enhance_prompt": False,
             "generate_audio": True,
-            "compression_quality": "low",
+            "fps": 30,
+            "compression_quality": "OPTIMIZED",
         }
     }
 
@@ -48,7 +49,7 @@ def test_load_config_and_create_generate_videos_config():
             assert video_config_obj.person_generation == "disallow"
             assert not video_config_obj.enhance_prompt
             assert video_config_obj.generate_audio
-            assert video_config_obj.compression_quality == "low"
+            assert video_config_obj.compression_quality == "OPTIMIZED"
         except Exception as e:
             pytest.fail(
                 f"Failed to instantiate GenerateVideosConfig with loaded config: {e}"

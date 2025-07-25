@@ -3,6 +3,7 @@ import os
 import time
 import uuid
 import yaml
+import json
 
 from dotenv import load_dotenv
 from google import genai
@@ -20,7 +21,10 @@ def load_config(config_path="config.yaml"):
         return {}
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)
-    return config.get("video_generation", {})
+    if config is not None:
+        return config.get("video_generation", {})
+    else:
+        return {}
 
 
 def get_unique_filepath(filepath):
@@ -142,7 +146,7 @@ def generate_video(
 
 
     if operation.error:
-        print(f"ERROR: Video generation failed: {operation.error.message}")
+        print(f"ERROR: Video generation failed: {json.dumps(operation.error)}")
         return
 
     if is_vertex:
