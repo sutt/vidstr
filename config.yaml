@@ -30,3 +30,8 @@ image_generation:
   # enhance_prompt: true
   # seed: 42
   # negative_prompt: ""
+
+# Default workspace settings:
+workspace_setting:
+  gcs_output_bucket: "gs://hello-world-123"
+  local_output_dir: "data/"

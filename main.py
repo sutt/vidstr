@@ -98,6 +98,7 @@ def generate_video(
     input_video_path: str | None,
     last_frame_path: str | None,
     config: dict,
+    gcs_output_bucket: str,
 ):
     """Generates a video from a prompt and saves it to a directory."""
     print(f"Generating video for prompt: '{prompt}'")
@@ -128,7 +129,7 @@ def generate_video(
     elif input_image_path:
         prefix = os.path.splitext(os.path.basename(input_image_path))[0]
     unique_id = str(uuid.uuid4())[:8]
-    bucket_output_uri = f"gs://hello-world-123/{prefix}-{unique_id}"
+    bucket_output_uri = f"{gcs_output_bucket}/{prefix}-{unique_id}"
 
     # Configure operation based on whether we're using Vertex AI
     video_config = config.copy()
@@ -197,6 +198,7 @@ def continue_video(
     output_dir: str,
     input_video_path: str,
     config: dict,
+    gcs_output_bucket: str,
 ):
     """Continues a video from a prompt and an existing video."""
     print(f"Continuing video from '{input_video_path}' with prompt: '{prompt}'")
@@ -218,10 +220,15 @@ def continue_video(
         input_video_path=None,
         last_frame_path=None,
         config=config,
+        gcs_output_bucket=gcs_output_bucket,
     )
 
 
 def main():
+    workspace_config = load_config("workspace_setting")
+    gcs_output_bucket = workspace_config.get("gcs_output_bucket", "gs://default-bucket")
+    local_output_dir = workspace_config.get("local_output_dir", "data/tmp")
+
     parser = argparse.ArgumentParser(
         description="Generate images or video from a text prompt."
     )
@@ -254,7 +261,7 @@ def main():
         "-o",
         "--output-dir",
         type=str,
-        default="data/tmp",
+        default=local_output_dir,
         help="Directory to save generated images.",
     )
 
@@ -285,7 +292,7 @@ def main():
         "-o",
         "--output-dir",
         type=str,
-        default="data/tmp",
+        default=local_output_dir,
         help="Directory to save generated video.",
     )
 
@@ -307,7 +314,7 @@ def main():
         "-o",
         "--output-dir",
         type=str,
-        default="data/tmp",
+        default=local_output_dir,
         help="Directory to save generated video and last frame.",
     )
 
@@ -361,6 +368,7 @@ def main():
             input_video_path=args.input_video,
             last_frame_path=args.last_frame,
             config=video_config,
+            gcs_output_bucket=gcs_output_bucket,
         )
     elif args.command == "continue-video":
         continue_video(
@@ -369,6 +377,7 @@ def main():
             output_dir=args.output_dir,
             input_video_path=args.input_video,
             config=video_config,
+            gcs_output_bucket=gcs_output_bucket,
         )
 
 
