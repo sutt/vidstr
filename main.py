@@ -48,19 +48,19 @@ def get_unique_filepath(filepath):
         counter += 1
 
 
-IMAGE_MODEL = "imagen-4.0-generate-preview-06-06" 
-VIDEO_MODEL = "veo-2.0-generate-001"
 
 
 def generate_images(client: genai.Client, prompt: str, output_dir: str, config: dict):
     """Generates images from a prompt and saves them to a directory."""
+    config = config.copy()
+    image_model = config.pop("model", "imagen-4.0-generate-preview-06-06")
     number_of_images = config.get("number_of_images", 1)
     print(f"Generating {number_of_images} image(s) for prompt: '{prompt}'")
 
     os.makedirs(output_dir, exist_ok=True)
 
     response = client.models.generate_images(
-        model=IMAGE_MODEL,
+        model=image_model,
         prompt=prompt,
         config=types.GenerateImagesConfig(**config),
     )
@@ -120,13 +120,14 @@ def generate_video(
 
     # Configure operation based on whether we're using Vertex AI
     video_config = config.copy()
+    video_model = video_config.pop("model", "veo-2.0-generate-001")
     if last_frame:
         video_config["last_frame"] = last_frame
 
     if is_vertex:
         video_config["output_gcs_uri"] = bucket_output_uri
         operation = client.models.generate_videos(
-            model=VIDEO_MODEL,
+            model=video_model,
             prompt=prompt,
             image=input_image,
             video=input_video,
@@ -135,7 +136,7 @@ def generate_video(
         print(f"Using bucket output: {bucket_output_uri}")
     else:
         operation = client.models.generate_videos(
-            model=VIDEO_MODEL,
+            model=video_model,
             prompt=prompt,
             image=input_image,
             video=input_video,
