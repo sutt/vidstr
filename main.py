@@ -15,14 +15,14 @@ from client import get_client
 load_dotenv()
 
 
-def load_config(config_path="config.yaml"):
-    """Loads video generation config from a YAML file."""
+def load_config(section: str, config_path="config.yaml"):
+    """Loads a config section from a YAML file."""
     if not os.path.exists(config_path):
         return {}
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)
     if config is not None:
-        return config.get("video_generation", {})
+        return config.get(section, {})
     else:
         return {}
 
@@ -52,10 +52,9 @@ IMAGE_MODEL = "imagen-4.0-ultra-generate-preview-06-06"
 VIDEO_MODEL = "veo-2.0-generate-001"
 
 
-def generate_images(
-    client: genai.Client, prompt: str, output_dir: str, number_of_images: int
-):
+def generate_images(client: genai.Client, prompt: str, output_dir: str, config: dict):
     """Generates images from a prompt and saves them to a directory."""
+    number_of_images = config.get("number_of_images", 1)
     print(f"Generating {number_of_images} image(s) for prompt: '{prompt}'")
 
     os.makedirs(output_dir, exist_ok=True)
@@ -63,13 +62,17 @@ def generate_images(
     response = client.models.generate_images(
         model=IMAGE_MODEL,
         prompt=prompt,
-        config=types.GenerateImagesConfig(
-            number_of_images=number_of_images,
-        ),
+        config=types.GenerateImagesConfig(**config),
     )
 
+    mime_type_ext = {
+        "image/png": ".png",
+        "image/jpeg": ".jpg",
+    }
+    ext = mime_type_ext.get(config.get("output_mime_type"), ".png")
+
     for i, generated_image in enumerate(response.generated_images):
-        image_path = os.path.join(output_dir, f"image_{i}.png")
+        image_path = os.path.join(output_dir, f"image_{i}{ext}")
         unique_image_path = get_unique_filepath(image_path)
         generated_image.image.save(unique_image_path)
         print(f"Saved image to {unique_image_path}")
@@ -219,7 +222,7 @@ def main():
         "-n",
         "--number-of-images",
         type=int,
-        default=1,
+        default=None,
         help="Number of images to generate.",
     )
     parser_image.add_argument(
@@ -292,14 +295,18 @@ def main():
         os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "false"
 
     client = get_client()
-    config = load_config()
+    video_config = load_config("video_generation")
+    image_config = load_config("image_generation")
 
     if args.command == "image":
+        if args.number_of_images is not None:
+            image_config["number_of_images"] = args.number_of_images
+
         generate_images(
             client=client,
             prompt=args.prompt,
             output_dir=args.output_dir,
-            number_of_images=args.number_of_images,
+            config=image_config,
         )
     elif args.command == "video":
         generate_video(
@@ -309,7 +316,7 @@ def main():
             input_image_path=args.input_image,
             input_video_path=args.input_video,
             last_frame_path=args.last_frame,
-            config=config,
+            config=video_config,
         )
     elif args.command == "continue-video":
         continue_video(
@@ -317,7 +324,7 @@ def main():
             prompt=args.prompt,
             output_dir=args.output_dir,
             input_video_path=args.input_video,
-            config=config,
+            config=video_config,
         )
 
 

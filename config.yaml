@@ -4,10 +4,24 @@ video_generation:
   duration_seconds: 8
   aspect_ratio: "16:9"
   enhance_prompt: true
+  seed: 42
+  negative_prompt: ""
   # not supported in gemini-api, only vertex
   # person_generation: "allow" # "allow" or "disallow"
-  # fps: 24
-  # generate_audio: false
+  fps: 24
+  generate_audio: false
   # not supported in vertex-api either
   # resolution: "720p" # e.g., "1080p", "720p"  # 1080p not supported veo-2
-  # compression_quality: "OPTIMIZED" # "LOSELESS"
+  compression_quality: "OPTIMIZED" # "LOSELESS"
+
+# Default configuration for image generation
+image_generation:
+  number_of_images: 1
+  aspect_ratio: "16:9" # "1:1", "3:4", "4:3", "9:16", "16:9"
+  guidance_scale: 7.5
+  seed: 42
+  negative_prompt: ""
+  person_generation: "DONT_ALLOW" # "DONT_ALLOW", "ALLOW_ADULT", "ALLOW_ALL"
+  enhance_prompt: true
+  output_mime_type: "image/png" # "image/png" or "image/jpeg"
+  language: "en" # "auto", "en", "ja", "ko", "hi", "zh", "pt", "es"

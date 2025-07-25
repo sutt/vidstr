@@ -35,7 +35,7 @@ def test_load_config_and_create_generate_videos_config():
         config_path = tmp.name
 
     try:
-        loaded_config = load_config(config_path)
+        loaded_config = load_config("video_generation", config_path)
         assert loaded_config == config_data["video_generation"]
 
         # Test instantiation of GenerateVideosConfig
@@ -59,13 +59,61 @@ def test_load_config_and_create_generate_videos_config():
         os.remove(config_path)
 
 
+def test_load_config_and_create_generate_images_config():
+    """
+    Tests that the config loaded from YAML can be used to instantiate
+    a GenerateImagesConfig object.
+    """
+    config_data = {
+        "image_generation": {
+            "number_of_images": 2,
+            "aspect_ratio": "4:3",
+            "guidance_scale": 8.0,
+            "seed": 12345,
+            "negative_prompt": "blurry",
+            "person_generation": "ALLOW_ADULT",
+            "enhance_prompt": False,
+            "output_mime_type": "image/jpeg",
+            "language": "ja",
+        }
+    }
+
+    with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".yaml") as tmp:
+        yaml.dump(config_data, tmp)
+        config_path = tmp.name
+
+    try:
+        loaded_config = load_config("image_generation", config_path)
+        assert loaded_config == config_data["image_generation"]
+
+        # Test instantiation of GenerateImagesConfig
+        try:
+            image_config_obj = types.GenerateImagesConfig(**loaded_config)
+            assert image_config_obj.number_of_images == 2
+            assert image_config_obj.aspect_ratio == "4:3"
+            assert image_config_obj.guidance_scale == 8.0
+            assert image_config_obj.seed == 12345
+            assert image_config_obj.negative_prompt == "blurry"
+            assert image_config_obj.person_generation == "ALLOW_ADULT"
+            assert not image_config_obj.enhance_prompt
+            assert image_config_obj.output_mime_type == "image/jpeg"
+            assert image_config_obj.language == "ja"
+        except Exception as e:
+            pytest.fail(
+                f"Failed to instantiate GenerateImagesConfig with loaded config: {e}"
+            )
+
+    finally:
+        os.remove(config_path)
+
+
 def test_load_config_empty_file():
     """Tests loading an empty config file."""
     with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".yaml") as tmp:
         config_path = tmp.name
 
     try:
-        loaded_config = load_config(config_path)
+        loaded_config = load_config("video_generation", config_path)
         assert loaded_config == {}
     finally:
         os.remove(config_path)
@@ -73,5 +121,5 @@ def test_load_config_empty_file():
 
 def test_load_config_no_file():
     """Tests loading when config file does not exist."""
-    loaded_config = load_config("non_existent_file.yaml")
+    loaded_config = load_config("video_generation", "non_existent_file.yaml")
     assert loaded_config == {}
