@@ -36,17 +36,65 @@ gcloud auth application-default login --no-browser
 ### Commands
 
 ```
-get_frame.py [-h] [--frame {first,last}] [-o OUTPUT] video_path
+get_frame.py [--frame {first,last}] [-o OUTPUT] video_path
 
-main.py image [-h] [-n NUMBER_OF_IMAGES] [-o OUTPUT_DIR] prompt
+main.py [-c CONFIG] [--vertex] image [-n NUMBER_OF_IMAGES] [-o OUTPUT_DIR] prompt
 
-main.py video [-h] [-i INPUT_IMAGE] [-v INPUT_VIDEO] [-o OUTPUT_DIR] prompt
+main.py [-c CONFIG] [--vertex] video [-i INPUT_IMAGE] [-l LAST_FRAME] [-v INPUT_VIDEO] [-o OUTPUT_DIR] prompt
 
-main.py video [-h] [-i INPUT_IMAGE] [-v INPUT_VIDEO] [-o OUTPUT_DIR] prompt
-
-main.py continue-video [-h] -i INPUT_VIDEO [-o OUTPUT_DIR] prompt
+main.py [-c CONFIG] continue-video [-h] -i INPUT_VIDEO [-o OUTPUT_DIR] prompt
 
 client.py
+```
+
+### Configs
+
+Defaults for models and parameters load from [config.yaml](./config.yaml).
+
+Add a `profile.yaml` to override any settings here:
+- You can point to this file with `-c` on main.py
+- The default location is repo root to avoid the -c flag.
+- The main default location for this profile, if specifying an output dir (with `-o` flag in commands) is within the output dir itself, e.g. `python main.py video -o data/tmp 'astronaut riding a horse'` will look to load `data/tmp/profile.yaml` if it exists.
+
+**config.yaml**
+```yaml
+# Default configuration for video generation
+video_generation:
+  model: "veo-2.0-generate-001" # alternative: "veo-3.0-generate-preview"
+  number_of_videos: 1
+  duration_seconds: 8
+  aspect_ratio: "16:9"
+  enhance_prompt: true
+  # all settings below not supported in gemini-api, only vertex, 
+  # leave below fields commented out for compatibility
+  # seed: 42
+  # negative_prompt: ""
+  # person_generation: "allow" # "allow" or "disallow"
+  # fps: 24
+  # generate_audio: false
+  # not supported in vertex-api either
+  # resolution: "720p" # e.g., "1080p", "720p"  # 1080p not supported veo-2
+  # compression_quality: "OPTIMIZED" # "LOSELESS"
+
+# Default configuration for image generation
+image_generation:
+  model: "imagen-4.0-generate-preview-06-06" # alternative: "imagen-4.0-ultra-generate-preview-06-06"
+  number_of_images: 1
+  aspect_ratio: "16:9" # "1:1", "3:4", "4:3", "9:16", "16:9"
+  guidance_scale: 7.5
+  person_generation: "ALLOW_ADULT" # "DONT_ALLOW", "ALLOW_ADULT", "ALLOW_ALL"
+  output_mime_type: "image/png" # "image/png" or "image/jpeg"
+  # all settings below not supported in gemini-api, only vertex, 
+  # leave below fields commented out for compatibility
+  # language: "en" # "auto", "en", "ja", "ko", "hi", "zh", "pt", "es"
+  # enhance_prompt: true
+  # seed: 42
+  # negative_prompt: ""
+
+# Default workspace settings:
+workspace_setting:
+  gcs_output_bucket: "gs://hello-world-123"
+  local_output_dir: "data/"
 
 ```
 

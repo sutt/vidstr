@@ -24,9 +24,9 @@ image_generation:
   guidance_scale: 7.5
   person_generation: "ALLOW_ADULT" # "DONT_ALLOW", "ALLOW_ADULT", "ALLOW_ALL"
   output_mime_type: "image/png" # "image/png" or "image/jpeg"
-  # language: "en" # "auto", "en", "ja", "ko", "hi", "zh", "pt", "es"
   # all settings below not supported in gemini-api, only vertex, 
   # leave below fields commented out for compatibility
+  # language: "en" # "auto", "en", "ja", "ko", "hi", "zh", "pt", "es"
   # enhance_prompt: true
   # seed: 42
   # negative_prompt: ""
