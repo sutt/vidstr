@@ -1,7 +1,7 @@
 # Dev Summary
 Looks at tasks and associated commit solutions generated each release.
 
-## v0.0.1
+## v0.1.1
 
 | Task File | Description | Commit | Code Changes (src/root) | Test Changes | Notes |
 |-----------|-------------|--------|-------------------------|--------------|-------|
