@@ -48,7 +48,7 @@ def get_unique_filepath(filepath):
         counter += 1
 
 
-IMAGE_MODEL = "imagen-4.0-ultra-generate-preview-06-06"
+IMAGE_MODEL = "imagen-4.0-generate-preview-06-06" 
 VIDEO_MODEL = "veo-2.0-generate-001"
 
 
