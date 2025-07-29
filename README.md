@@ -3,9 +3,9 @@
 Create continuous loop videos from cli.
 
 ### Resources
-See write-up on initial progress building with [Agro](https://github.com/sutt/agro): [Agro-Builds-Vidster-1](https://github.com/sutt/agro/blob/master/docs/case-studies/aba-vidster-1.md)
+See write-up on initial progress building with [Agro](https://github.com/sutt/agro): [Agro-Builds-Vidster-1](https://github.com/sutt/agro/blob/master/docs/case-studies/aba-vidster-1.md), which contains a write-up of findings from this [agro experiment](https://github.com/sutt/demo-agro-ext-lib) for using non standard-lib packages.
 
-See [DevLog](./docs/dev-log-v1.md)
+Also, see [DevLog](./docs/dev-log-v1.md)
 
 ### Setup
 
