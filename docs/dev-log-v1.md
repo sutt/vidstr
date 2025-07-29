@@ -3,15 +3,15 @@ Looks at tasks and associated commit solutions generated each release.
 
 ## v0.1.2
 
-| Task File | Description | Commit |
-|-----------|-------------|--------|
-| [config-settings.md](../.public-agdocs/specs/config-settings.md) | Add workspace settings to config.yaml for gcs_output_bucket and local_output_dir piped into main.py | [f002d9e](https://github.com/sutt/vidstr/commit/f002d9e) |
-| [profile-config.md](../.public-agdocs/specs/profile-config.md) | Add profile.yaml functionality to supplement config.yaml with override settings and CLI config path option | [90a8343](https://github.com/sutt/vidstr/commit/90a8343) |
-| [dl-bucket.md](../.public-agdocs/specs/dl-bucket.md) | Add functionality to download created products from GCS bucket to output directory with unique filenames | [38e5afe](https://github.com/sutt/vidstr/commit/38e5afe) |
-| [config-model-names.md](../.public-agdocs/specs/config-model-names.md) | Add config options to yml for image and video generation models (IMAGE_MODEL and VIDEO_MODEL) | [54dfe69](https://github.com/sutt/vidstr/commit/54dfe69) |
-| [yml-config-img.md](../.public-agdocs/specs/yml-config-img.md) | Add extensive configs for image generation to config.yaml including GenerateImagesConfig options and tests | [5fc8fa0](https://github.com/sutt/vidstr/commit/5fc8fa0) |
-| [yml-for-vidconfig.md](../.public-agdocs/specs/yml-for-vidconfig.md) | Generate yaml config and loading method for GenerateVideosConfig with pytests in ./tests/ | [f422450](https://github.com/sutt/vidstr/commit/f422450) |
-| [gen-with-last-frame.md](../.public-agdocs/specs/gen-with-last-frame.md) | Modify generate_video to accept optional last_frame arg and add CLI param -l/--last-frame | [af158f9](https://github.com/sutt/vidstr/commit/af158f9) |
+| Task File | Description | Commit | Code Changes (src/root) | Test Changes | Notes |
+|-----------|-------------|--------|-------------------------|--------------|-------|
+| [config-settings.md](../.public-agdocs/specs/config-settings.md) | Add workspace settings to config.yaml for gcs_output_bucket and local_output_dir piped into main.py | [f002d9e](https://github.com/sutt/vidstr/commit/f002d9e) | +18/-4 | n/a | |
+| [profile-config.md](../.public-agdocs/specs/profile-config.md) | Add profile.yaml functionality to supplement config.yaml with override settings and CLI config path option | [90a8343](https://github.com/sutt/vidstr/commit/90a8343) | +50/-12 | n/a | |
+| [dl-bucket.md](../.public-agdocs/specs/dl-bucket.md) | Add functionality to download created products from GCS bucket to output directory with unique filenames | [38e5afe](https://github.com/sutt/vidstr/commit/38e5afe) | +39/-3 | n/a | |
+| [config-model-names.md](../.public-agdocs/specs/config-model-names.md) | Add config options to yml for image and video generation models (IMAGE_MODEL and VIDEO_MODEL) | [54dfe69](https://github.com/sutt/vidstr/commit/54dfe69) | +8/-5 | n/a | |
+| [yml-config-img.md](../.public-agdocs/specs/yml-config-img.md) | Add extensive configs for image generation to config.yaml including GenerateImagesConfig options and tests | [5fc8fa0](https://github.com/sutt/vidstr/commit/5fc8fa0) | +37/-15 | +54/-3 | |
+| [yml-for-vidconfig.md](../.public-agdocs/specs/yml-for-vidconfig.md) | Generate yaml config and loading method for GenerateVideosConfig with pytests in ./tests/ | [f422450](https://github.com/sutt/vidstr/commit/f422450) | +46/-8 | +76/-0 | |
+| [gen-with-last-frame.md](../.public-agdocs/specs/gen-with-last-frame.md) | Modify generate_video to accept optional last_frame arg and add CLI param -l/--last-frame | [af158f9](https://github.com/sutt/vidstr/commit/af158f9) | +23/-4 | n/a | |
 
 ```
 11758b8 release: v0.1.2
