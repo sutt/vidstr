@@ -10,6 +10,7 @@ from google import genai
 from google.genai import types
 from get_frame import get_frame
 from client import get_client, download_from_gcs
+from concat_vid import concatenate_videos
 # from PIL import Image
 
 load_dotenv()
@@ -164,7 +165,7 @@ def generate_video(
 
     if operation.error:
         print(f"ERROR: Video generation failed: {json.dumps(operation.error)}")
-        return
+        return None
 
     if is_vertex:
         # For Vertex AI with bucket output, the video is in the GCS bucket
@@ -176,12 +177,12 @@ def generate_video(
         unique_video_path = get_unique_filepath(video_path)
         print(f"Downloading video from GCS to {unique_video_path}...")
         download_from_gcs(gcs_uri, unique_video_path)
-        return
+        return unique_video_path
     else:
         # For Gemini API, check operation.response
         if not operation.response:
             print("ERROR: Video generation completed but returned no response.")
-            return
+            return None
             
         video = operation.response.generated_videos[0]
         video_path = os.path.join(output_dir, "video.mp4")
@@ -190,6 +191,7 @@ def generate_video(
         client.files.download(file=video.video)
         video.video.save(unique_video_path)
         print(f"Saved video to {unique_video_path}")
+        return unique_video_path
 
 
 def continue_video(
@@ -212,7 +214,7 @@ def continue_video(
     )
 
     # Now call generate_video with the extracted frame
-    generate_video(
+    return generate_video(
         client=client,
         prompt=prompt,
         output_dir=output_dir,
@@ -222,6 +224,63 @@ def continue_video(
         config=config,
         gcs_output_bucket=gcs_output_bucket,
     )
+
+
+def extend_video(
+    client: genai.Client,
+    prompt: str,
+    num_vids: int,
+    input_video_path: str,
+    config: dict,
+    gcs_output_bucket: str,
+):
+    """Extends a video by generating continuations and concatenating them."""
+    if not os.path.exists(input_video_path):
+        print(f"Error: Input video not found at {input_video_path}")
+        return
+
+    output_dir = os.path.dirname(input_video_path)
+    if not output_dir:
+        output_dir = "."
+
+    # Keep track of all video parts for concatenation
+    video_parts = [input_video_path]
+    current_video = input_video_path
+
+    for i in range(num_vids):
+        print(f"\n--- Extending video: iteration {i + 1}/{num_vids} ---")
+        print(f"Using '{current_video}' as input.")
+
+        new_video_path = continue_video(
+            client=client,
+            prompt=prompt,
+            output_dir=output_dir,
+            input_video_path=current_video,
+            config=config,
+            gcs_output_bucket=gcs_output_bucket,
+        )
+
+        if not new_video_path:
+            print("Failed to generate video continuation. Aborting.")
+            return
+
+        print(f"Generated new video segment: {new_video_path}")
+        video_parts.append(new_video_path)
+        current_video = new_video_path
+
+    if len(video_parts) > 1:
+        print(f"\n--- Concatenating {len(video_parts)} video parts ---")
+        timestamp = time.strftime("%H%M%S")
+        output_filename = f"concat-{timestamp}.mp4"
+        output_path = os.path.join(output_dir, output_filename)
+
+        try:
+            concatenate_videos(video_files=video_parts, output_path=output_path)
+            print(f"Successfully created extended video: {output_path}")
+        except Exception as e:
+            print(f"Error during concatenation: {e}")
+    else:
+        print("No new videos were generated to concatenate.")
 
 
 def main():
@@ -318,6 +377,32 @@ def main():
         help="Directory to save generated video and last frame.",
     )
 
+    # Video extension subcommand
+    parser_extend_video = subparsers.add_parser(
+        "extend-video", help="Extend a video multiple times and concatenate."
+    )
+    parser_extend_video.add_argument(
+        "-v",
+        "--video",
+        type=str,
+        required=True,
+        help="Path to an existing video to extend from.",
+    )
+    parser_extend_video.add_argument(
+        "-n",
+        "--num-vids",
+        type=int,
+        required=True,
+        help="Number of video segments to generate and append.",
+    )
+    parser_extend_video.add_argument(
+        "-p",
+        "--prompt",
+        type=str,
+        required=True,
+        help="The text prompt for video generation.",
+    )
+
     args = parser.parse_args()
 
     if args.vertex:
@@ -376,6 +461,15 @@ def main():
             prompt=args.prompt,
             output_dir=args.output_dir,
             input_video_path=args.input_video,
+            config=video_config,
+            gcs_output_bucket=gcs_output_bucket,
+        )
+    elif args.command == "extend-video":
+        extend_video(
+            client=client,
+            prompt=args.prompt,
+            num_vids=args.num_vids,
+            input_video_path=args.video,
             config=video_config,
             gcs_output_bucket=gcs_output_bucket,
         )
