@@ -4,6 +4,7 @@ import time
 import uuid
 import yaml
 import json
+import re
 
 from dotenv import load_dotenv
 from google import genai
@@ -42,19 +43,19 @@ def load_config(
 
 def get_unique_filepath(filepath):
     """
-    If a file exists at the given path, appends an incremental counter
-    to the filename until a unique path is found.
-    e.g., 'image.png' -> 'image-0001.png', 'image-0002.png'
+    Generates a unique filepath by appending an incremental counter.
+    It strips numeric suffixes (e.g., '_123') from the base filename first.
+    e.g., 'image.png' -> 'image-001.png', 'image_01.png' -> 'image-001.png'
     """
-    if not os.path.exists(filepath):
-        return filepath
-
     directory, filename = os.path.split(filepath)
     name, ext = os.path.splitext(filename)
-    counter = 1
 
+    # Strip numeric suffix like _123 from the end of the name
+    name = re.sub(r"_\d+$", "", name)
+
+    counter = 1
     while True:
-        new_filename = f"{name}-{counter:04d}{ext}"
+        new_filename = f"{name}-{counter:03d}{ext}"
         new_filepath = os.path.join(directory, new_filename)
         if not os.path.exists(new_filepath):
             return new_filepath
