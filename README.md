@@ -48,6 +48,17 @@ main.py [-c CONFIG] continue-video [-h] -i INPUT_VIDEO [-o OUTPUT_DIR] prompt
 client.py
 ```
 
+### Scripting
+
+Add this bash script to your path to call this package anywhere:
+
+**vidstr**
+```bash
+#!/bin/bash
+# Pass the original working directory as an environment variable
+VIDSTR_CALLER_DIR="$PWD" uv run --directory /path/to/vidstr "$@"
+```
+
 ### Configs
 
 Defaults for models and parameters load from [config.yaml](./config.yaml).

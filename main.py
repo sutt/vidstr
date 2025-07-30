@@ -286,7 +286,13 @@ def extend_video(
 def main():
     workspace_config = load_config("workspace_setting")
     gcs_output_bucket = workspace_config.get("gcs_output_bucket", "gs://default-bucket")
-    local_output_dir = workspace_config.get("local_output_dir", "data/tmp")
+    
+    # Use caller's directory if called via vidstr script, 
+    # otherwise use config,see README.md#scripting
+    if "VIDSTR_CALLER_DIR" in os.environ:
+        local_output_dir = os.environ["VIDSTR_CALLER_DIR"]
+    else:
+        local_output_dir = workspace_config.get("local_output_dir", "data/tmp")
 
     parser = argparse.ArgumentParser(
         description="Generate images or video from a text prompt."
