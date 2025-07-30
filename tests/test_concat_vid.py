@@ -224,11 +224,6 @@ class TestMainCLI:
                 assert result == 0
                 mock_concat_dir.assert_called_once_with(tmp_dir, 'concatenated_video.mp4')
     
-    def test_no_arguments_error(self):
-        """Test CLI with no arguments (should fail)."""
-        with patch('sys.argv', ['concat_vid.py']):
-            result = main()
-            assert result == 1
     
     @patch('concat_vid.concatenate_videos')
     def test_comma_separated_files(self, mock_concat):

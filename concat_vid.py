@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import List, Optional
 
 try:
-    from moviepy.editor import VideoFileClip, concatenate_videoclips
+    from moviepy import VideoFileClip, concatenate_videoclips
 except ImportError:
     print("Error: moviepy is required. Install it with: pip install moviepy")
     sys.exit(1)
