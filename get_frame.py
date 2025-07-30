@@ -103,7 +103,7 @@ def main():
         "-n",
         "--num-frame",
         type=int,
-        help="Frame number to extract. Overrides --frame.",
+        help="Frame number to extract (first frame is 0). Overrides --frame.",
     )
     parser.add_argument(
         "-o",

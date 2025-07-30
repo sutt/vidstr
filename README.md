@@ -35,8 +35,9 @@ gcloud auth application-default login --no-browser
 
 ### Commands
 
+
 ```
-get_frame.py [--frame {first,last}] [-o OUTPUT] video_path
+get_frame.py [-h] [--frame {first,last}] [-n NUM_FRAME] [-o OUTPUT] video_path
 
 main.py [-c CONFIG] [--vertex] image [-n NUMBER_OF_IMAGES] [-o OUTPUT_DIR] prompt
 
