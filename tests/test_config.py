@@ -36,6 +36,8 @@ def test_load_config_and_create_generate_videos_config():
 
     try:
         loaded_config = load_config("video_generation", config_path)
+        assert "model" in loaded_config
+        loaded_config.pop("model")
         assert loaded_config == config_data["video_generation"]
 
         # Test instantiation of GenerateVideosConfig
@@ -84,6 +86,8 @@ def test_load_config_and_create_generate_images_config():
 
     try:
         loaded_config = load_config("image_generation", config_path)
+        assert "model" in loaded_config
+        loaded_config.pop("model")
         assert loaded_config == config_data["image_generation"]
 
         # Test instantiation of GenerateImagesConfig
@@ -114,7 +118,8 @@ def test_load_config_empty_file():
 
     try:
         loaded_config = load_config("video_generation", config_path)
-        assert loaded_config == {}
+        assert loaded_config != {}
+        assert "model" in loaded_config
     finally:
         os.remove(config_path)
 
@@ -122,4 +127,5 @@ def test_load_config_empty_file():
 def test_load_config_no_file():
     """Tests loading when config file does not exist."""
     loaded_config = load_config("video_generation", "non_existent_file.yaml")
-    assert loaded_config == {}
+    assert loaded_config != {}
+    assert "model" in loaded_config
