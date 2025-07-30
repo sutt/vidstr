@@ -411,6 +411,27 @@ def main():
 
     args = parser.parse_args()
 
+    # Resolve relative paths against caller's directory
+    if "VIDSTR_CALLER_DIR" in os.environ:
+        caller_dir = os.environ["VIDSTR_CALLER_DIR"]
+        
+        # Resolve output directory
+        if hasattr(args, "output_dir") and args.output_dir and not os.path.isabs(args.output_dir):
+            args.output_dir = os.path.join(caller_dir, args.output_dir)
+        
+        # Resolve input paths
+        if hasattr(args, "input_image") and args.input_image and not os.path.isabs(args.input_image):
+            args.input_image = os.path.join(caller_dir, args.input_image)
+        
+        if hasattr(args, "input_video") and args.input_video and not os.path.isabs(args.input_video):
+            args.input_video = os.path.join(caller_dir, args.input_video)
+        
+        if hasattr(args, "last_frame") and args.last_frame and not os.path.isabs(args.last_frame):
+            args.last_frame = os.path.join(caller_dir, args.last_frame)
+        
+        if hasattr(args, "video") and args.video and not os.path.isabs(args.video):
+            args.video = os.path.join(caller_dir, args.video)
+
     if args.vertex:
         os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "true"
     else:
