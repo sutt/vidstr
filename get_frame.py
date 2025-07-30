@@ -90,15 +90,14 @@ def get_frame(
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Extract the first or last frame from a video."
+        description="Extract a frame from a video or count the total number of frames."
     )
     parser.add_argument("video_path", type=str, help="Path to the input video file.")
     parser.add_argument(
         "--frame",
         type=str,
         choices=["first", "last"],
-        default="first",
-        help="Which frame to extract ('first' or 'last'). Is ignored if --num-frame is used.",
+        help="Which frame to extract ('first' or 'last'). Is ignored if --num-frame is used. If neither this nor --num-frame is given, prints the total frame count.",
     )
     parser.add_argument(
         "-n",
@@ -113,6 +112,21 @@ def main():
         help="Path to save the output image. Defaults to a path in the same directory as the video.",
     )
     args = parser.parse_args()
+
+    if args.frame is None and args.num_frame is None:
+        if not os.path.exists(args.video_path):
+            print(f"Error: Video file not found at {args.video_path}")
+            return
+
+        cap = cv2.VideoCapture(args.video_path)
+        if not cap.isOpened():
+            print(f"Error: Could not open video file {args.video_path}")
+            return
+
+        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        print(f"Video '{args.video_path}' has {frame_count} frames.")
+        cap.release()
+        return
 
     video_filename = os.path.splitext(os.path.basename(args.video_path))[0]
     if args.num_frame is not None:
