@@ -11,6 +11,7 @@ dependencies = [
     "opencv-python",
     "pyyaml",
     "google-cloud-storage",
+    "moviepy",
 ]
 
 [project.optional-dependencies]
