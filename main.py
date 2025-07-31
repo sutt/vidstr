@@ -195,6 +195,48 @@ def generate_video(
         return unique_video_path
 
 
+def loop_video(
+    client: genai.Client,
+    prompt: str,
+    output_dir: str,
+    input_video_path: str,
+    config: dict,
+    gcs_output_bucket: str,
+):
+    """Creates a looping video by generating a transition from the last frame to the first frame."""
+    print(f"Creating a loop for video '{input_video_path}' with prompt: '{prompt}'")
+
+    os.makedirs(output_dir, exist_ok=True)
+
+    last_frame_path = get_unique_filepath(
+        os.path.join(output_dir, "loop_last_frame.png")
+    )
+    print(f"Extracting last frame to {last_frame_path}...")
+    get_frame(
+        video_path=input_video_path, frame_type="last", output_path=last_frame_path
+    )
+
+    first_frame_path = get_unique_filepath(
+        os.path.join(output_dir, "loop_first_frame.png")
+    )
+    print(f"Extracting first frame to {first_frame_path}...")
+    get_frame(
+        video_path=input_video_path, frame_type="first", output_path=first_frame_path
+    )
+
+    # Now call generate_video with the extracted frames
+    return generate_video(
+        client=client,
+        prompt=prompt,
+        output_dir=output_dir,
+        input_image_path=last_frame_path,
+        input_video_path=None,
+        last_frame_path=first_frame_path,
+        config=config,
+        gcs_output_bucket=gcs_output_bucket,
+    )
+
+
 def continue_video(
     client: genai.Client,
     prompt: str,
@@ -410,6 +452,33 @@ def main():
         help="The text prompt for video generation.",
     )
 
+    # Video looping subcommand
+    parser_loop_video = subparsers.add_parser(
+        "loop-video",
+        help="Create a looping video by generating a transition from the last to the first frame.",
+    )
+    parser_loop_video.add_argument(
+        "-v",
+        "--video-input",
+        type=str,
+        required=True,
+        help="Path to an existing video to loop.",
+    )
+    parser_loop_video.add_argument(
+        "-p",
+        "--prompt",
+        type=str,
+        required=True,
+        help="The text prompt for video generation.",
+    )
+    parser_loop_video.add_argument(
+        "-o",
+        "--output-dir",
+        type=str,
+        default=local_output_dir,
+        help="Directory to save generated video and frames.",
+    )
+
     args = parser.parse_args()
 
     # Resolve relative paths against caller's directory
@@ -432,6 +501,9 @@ def main():
         
         if hasattr(args, "video") and args.video and not os.path.isabs(args.video):
             args.video = os.path.join(caller_dir, args.video)
+        
+        if hasattr(args, "video_input") and args.video_input and not os.path.isabs(args.video_input):
+            args.video_input = os.path.join(caller_dir, args.video_input)
 
     if args.vertex:
         os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "true"
@@ -498,6 +570,15 @@ def main():
             prompt=args.prompt,
             num_vids=args.num_vids,
             input_video_path=args.video,
+            config=video_config,
+            gcs_output_bucket=gcs_output_bucket,
+        )
+    elif args.command == "loop-video":
+        loop_video(
+            client=client,
+            prompt=args.prompt,
+            output_dir=args.output_dir,
+            input_video_path=args.video_input,
             config=video_config,
             gcs_output_bucket=gcs_output_bucket,
         )
