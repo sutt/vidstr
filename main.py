@@ -206,10 +206,14 @@ def loop_video(
     """Creates a looping video by generating a transition from the last frame to the first frame."""
     print(f"Creating a loop for video '{input_video_path}' with prompt: '{prompt}'")
 
+    if not os.path.exists(input_video_path):
+        print(f"Error: Input video not found at {input_video_path}")
+        return
+
     os.makedirs(output_dir, exist_ok=True)
 
     last_frame_path = get_unique_filepath(
-        os.path.join(output_dir, "loop_last_frame.png")
+        os.path.join(output_dir, "tmp.loop_last_frame.png")
     )
     print(f"Extracting last frame to {last_frame_path}...")
     get_frame(
@@ -217,7 +221,7 @@ def loop_video(
     )
 
     first_frame_path = get_unique_filepath(
-        os.path.join(output_dir, "loop_first_frame.png")
+        os.path.join(output_dir, "tmp.loop_first_frame.png")
     )
     print(f"Extracting first frame to {first_frame_path}...")
     get_frame(
@@ -574,6 +578,9 @@ def main():
             gcs_output_bucket=gcs_output_bucket,
         )
     elif args.command == "loop-video":
+        # client must be vertex for last_frame property
+        os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "true"
+        client = get_client()
         loop_video(
             client=client,
             prompt=args.prompt,
