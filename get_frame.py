@@ -113,6 +113,18 @@ def main():
     )
     args = parser.parse_args()
 
+    # Resolve relative paths against caller's directory
+    if "VIDSTR_CALLER_DIR" in os.environ:
+        caller_dir = os.environ["VIDSTR_CALLER_DIR"]
+
+        # Resolve video_path
+        if args.video_path and not os.path.isabs(args.video_path):
+            args.video_path = os.path.join(caller_dir, args.video_path)
+
+        # Resolve output path
+        if args.output and not os.path.isabs(args.output):
+            args.output = os.path.join(caller_dir, args.output)
+
     if args.frame is None and args.num_frame is None:
         if not os.path.exists(args.video_path):
             print(f"Error: Video file not found at {args.video_path}")
