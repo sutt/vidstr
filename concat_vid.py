@@ -204,6 +204,33 @@ Examples:
     )
     
     args = parser.parse_args()
+
+    # Resolve relative paths against caller's directory
+    if "VIDSTR_CALLER_DIR" in os.environ:
+        caller_dir = os.environ["VIDSTR_CALLER_DIR"]
+        
+        # Resolve output path
+        if args.output and not os.path.isabs(args.output):
+            args.output = os.path.join(caller_dir, args.output)
+        
+        # Resolve input directory
+        if args.dir and not os.path.isabs(args.dir):
+            args.dir = os.path.join(caller_dir, args.dir)
+        
+        # Resolve input files
+        if args.files:
+            resolved_files = []
+            for file_arg in args.files:
+                if ',' in file_arg:
+                    parts = [p.strip() for p in file_arg.split(',') if p.strip()]
+                    resolved_parts = [os.path.join(caller_dir, p) if not os.path.isabs(p) else p for p in parts]
+                    resolved_files.append(','.join(resolved_parts))
+                else:
+                    if not os.path.isabs(file_arg):
+                        resolved_files.append(os.path.join(caller_dir, file_arg))
+                    else:
+                        resolved_files.append(file_arg)
+            args.files = resolved_files
     
     try:
         if args.files:
