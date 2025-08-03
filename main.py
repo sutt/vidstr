@@ -283,20 +283,6 @@ def continue_video(
         video_parts.append(new_video_path)
         current_video = new_video_path
 
-    if len(video_parts) > 1:
-        print(f"\n--- Concatenating {len(video_parts)} video parts ---")
-        timestamp = time.strftime("%H%M%S")
-        output_filename = f"concat-{timestamp}.mp4"
-        output_path = os.path.join(output_dir, output_filename)
-
-        try:
-            concatenate_videos(video_files=video_parts, output_path=output_path)
-            print(f"Successfully created extended video: {output_path}")
-        except Exception as e:
-            print(f"Error during concatenation: {e}")
-    else:
-        print("No new videos were generated to concatenate.")
-
 
 def extend_video(
     client: genai.Client,
@@ -444,7 +430,7 @@ def main():
 
     # Video continuation subcommand
     parser_continue_video = subparsers.add_parser(
-        "continue-video", help="Continue a video from its last frame."
+        "continue-video", help="Continue a video from previous video (mutli-turn)."
     )
     parser_continue_video.add_argument(
         "-p",
@@ -454,7 +440,7 @@ def main():
         help="The text prompt for video generation.",
     )
     parser_continue_video.add_argument(
-        "-i",
+        "-v",
         "--input-video",
         type=str,
         required=True,
@@ -605,6 +591,9 @@ def main():
             gcs_output_bucket=gcs_output_bucket,
         )
     elif args.command == "continue-video":
+        # client must be vertex for video input property
+        os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "true"
+        client = get_client()
         continue_video(
             client=client,
             prompt=args.prompt,

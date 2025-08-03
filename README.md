@@ -37,17 +37,47 @@ gcloud auth application-default login --no-browser
 
 ### Commands
 
+```
+usage: main.py [-h] [--vertex] [-c CONFIG]
+               {image,video,continue-video,extend-video,loop-video} ...
+
+Generate images or video from a text prompt.
+
+positional arguments:
+  {image,video,continue-video,extend-video,loop-video}
+                        sub-command help
+    image               Generate images.
+    video               Generate a video.
+    continue-video      Continue a video from previous video (mutli-turn).
+    extend-video        Extend a video from last frame (multi-turn).
+    loop-video          Create a looping video by generating a transition from
+                        the last to the first frame.
+
+options:
+  -h, --help            show this help message and exit
+  --vertex              Use Vertex AI instead of Gemini API.
+  -c CONFIG, --config CONFIG
+                        Path to a profile.yaml for custom configuration.
 
 ```
+
+```
+# utils
+client.py
+
 get_frame.py [-h] [--frame {first,last}] [-n NUM_FRAME] [-o OUTPUT] video_path
 
+# direct generation
 main.py [-c CONFIG] [--vertex] image [-n NUMBER_OF_IMAGES] [-o OUTPUT_DIR] prompt
 
 main.py [-c CONFIG] [--vertex] video [-i INPUT_IMAGE] [-l LAST_FRAME] [-v INPUT_VIDEO] [-o OUTPUT_DIR] prompt
 
-main.py [-c CONFIG] continue-video [-h] -i INPUT_VIDEO [-o OUTPUT_DIR] prompt
+# generation helpers
+main.py extend-video -v VIDEO [-n NUM_VIDS] -p PROMPT
 
-client.py
+main.py continue-video -v VIDEO [-n NUM_VIDS] [-p PROMPT]
+
+main.py loop-video -v VIDEO_INPUT -p PROMPT
 ```
 
 ### Scripting
