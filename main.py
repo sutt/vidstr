@@ -246,31 +246,56 @@ def continue_video(
     prompt: str,
     output_dir: str,
     input_video_path: str,
+    num_vids: int,
     config: dict,
     gcs_output_bucket: str,
 ):
     """Continues a video from a prompt and an existing video."""
-    print(f"Continuing video from '{input_video_path}' with prompt: '{prompt}'")
+    if not os.path.exists(input_video_path):
+        print(f"Error: Input video not found at {input_video_path}")
+        return
 
-    os.makedirs(output_dir, exist_ok=True)
+    # Keep track of all video parts for concatenation
+    video_parts = [input_video_path]
+    current_video = input_video_path
 
-    last_frame_path = os.path.join(output_dir, "last_frame.png")
-    print(f"Extracting last frame to {last_frame_path}...")
-    get_frame(
-        video_path=input_video_path, frame_type="last", output_path=last_frame_path
-    )
+    for i in range(num_vids):
+        print(f"\n--- Continuing video: iteration {i + 1}/{num_vids} ---")
+        print(f"Using '{current_video}' as input.")
 
-    # Now call generate_video with the extracted frame
-    return generate_video(
-        client=client,
-        prompt=prompt,
-        output_dir=output_dir,
-        input_image_path=last_frame_path,
-        input_video_path=None,
-        last_frame_path=None,
-        config=config,
-        gcs_output_bucket=gcs_output_bucket,
-    )
+        # Now call generate_video with the video
+        new_video_path = generate_video(
+            client=client,
+            prompt=prompt,
+            output_dir=output_dir,
+            input_image_path=None,
+            input_video_path=current_video,
+            last_frame_path=None,
+            config=config,
+            gcs_output_bucket=gcs_output_bucket,
+        )
+
+        if not new_video_path:
+            print("Failed to generate video continuation. Aborting.")
+            return
+
+        print(f"Generated new video segment: {new_video_path}")
+        video_parts.append(new_video_path)
+        current_video = new_video_path
+
+    if len(video_parts) > 1:
+        print(f"\n--- Concatenating {len(video_parts)} video parts ---")
+        timestamp = time.strftime("%H%M%S")
+        output_filename = f"concat-{timestamp}.mp4"
+        output_path = os.path.join(output_dir, output_filename)
+
+        try:
+            concatenate_videos(video_files=video_parts, output_path=output_path)
+            print(f"Successfully created extended video: {output_path}")
+        except Exception as e:
+            print(f"Error during concatenation: {e}")
+    else:
+        print("No new videos were generated to concatenate.")
 
 
 def extend_video(
@@ -298,11 +323,20 @@ def extend_video(
         print(f"\n--- Extending video: iteration {i + 1}/{num_vids} ---")
         print(f"Using '{current_video}' as input.")
 
-        new_video_path = continue_video(
+        last_frame_path = os.path.join(output_dir, "last_frame.png")
+        print(f"Extracting last frame to {last_frame_path}...")
+        get_frame(
+            video_path=current_video, frame_type="last", output_path=last_frame_path
+        )
+
+        # Now call generate_video with the extracted frame
+        new_video_path = generate_video(
             client=client,
             prompt=prompt,
             output_dir=output_dir,
-            input_video_path=current_video,
+            input_image_path=last_frame_path,
+            input_video_path=None,
+            last_frame_path=None,
             config=config,
             gcs_output_bucket=gcs_output_bucket,
         )
@@ -413,7 +447,11 @@ def main():
         "continue-video", help="Continue a video from its last frame."
     )
     parser_continue_video.add_argument(
-        "prompt", type=str, help="The text prompt for video generation."
+        "-p",
+        "--prompt",
+        type=str,
+        default="",
+        help="The text prompt for video generation.",
     )
     parser_continue_video.add_argument(
         "-i",
@@ -421,6 +459,13 @@ def main():
         type=str,
         required=True,
         help="Path to an existing video to continue from.",
+    )
+    parser_continue_video.add_argument(
+        "-n",
+        "--num-vids",
+        type=int,
+        default=1,
+        help="Number of video segments to generate and append.",
     )
     parser_continue_video.add_argument(
         "-o",
@@ -565,6 +610,7 @@ def main():
             prompt=args.prompt,
             output_dir=args.output_dir,
             input_video_path=args.input_video,
+            num_vids=args.num_vids,
             config=video_config,
             gcs_output_bucket=gcs_output_bucket,
         )
