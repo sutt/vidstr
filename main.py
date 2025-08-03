@@ -445,7 +445,7 @@ def main():
         "-n",
         "--num-vids",
         type=int,
-        required=True,
+        default=1,
         help="Number of video segments to generate and append.",
     )
     parser_extend_video.add_argument(
