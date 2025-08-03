@@ -432,7 +432,7 @@ def main():
 
     # Video extension subcommand
     parser_extend_video = subparsers.add_parser(
-        "extend-video", help="Extend a video multiple times and concatenate."
+        "extend-video", help="Extend a video from last frame (multi-turn)."
     )
     parser_extend_video.add_argument(
         "-v",
