@@ -1,0 +1,1 @@
+modify get_frame.py to count the number of frames present in the input video if supplied with neither the --frame arg or the --num-frame arg

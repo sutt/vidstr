@@ -1,0 +1,1 @@
+change the cli api for extend-video to make -n optional and default to 1
