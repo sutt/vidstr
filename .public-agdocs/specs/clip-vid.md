@@ -1,0 +1,1 @@
+using moviepy take an input path of an mp4 and output the a new mp4 clipped to interval between the start time and end time inputs.
