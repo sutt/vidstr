@@ -23,3 +23,8 @@ test = [
 testpaths = [
     "tests",
 ]
+
+[dependency-groups]
+test = [
+    "pytest>=8.4.1",
+]
