@@ -1,18 +1,6 @@
 # Dev Summary
 Looks at tasks and associated commit solutions generated each release.
 
-## v0.1.2
-
-| Task File | Description | Commit | Code Changes (src/root) | Test Changes | Notes |
-|-----------|-------------|--------|-------------------------|--------------|-------|
-| [config-settings.md](../.public-agdocs/specs/config-settings.md) | Add workspace settings to config.yaml for gcs_output_bucket and local_output_dir piped into main.py | [f002d9e](https://github.com/sutt/vidstr/commit/f002d9e) | +18/-4 | n/a | |
-| [profile-config.md](../.public-agdocs/specs/profile-config.md) | Add profile.yaml functionality to supplement config.yaml with override settings and CLI config path option | [90a8343](https://github.com/sutt/vidstr/commit/90a8343) | +50/-12 | n/a | |
-| [dl-bucket.md](../.public-agdocs/specs/dl-bucket.md) | Add functionality to download created products from GCS bucket to output directory with unique filenames | [38e5afe](https://github.com/sutt/vidstr/commit/38e5afe) | +39/-3 | n/a | requires uv sync after package added.|
-| [config-model-names.md](../.public-agdocs/specs/config-model-names.md) | Add config options to yml for image and video generation models (IMAGE_MODEL and VIDEO_MODEL) | [54dfe69](https://github.com/sutt/vidstr/commit/54dfe69) | +8/-5 | n/a | |
-| [yml-config-img.md](../.public-agdocs/specs/yml-config-img.md) | Add extensive configs for image generation to config.yaml including GenerateImagesConfig options and tests | [5fc8fa0](https://github.com/sutt/vidstr/commit/5fc8fa0) | +37/-15 | +54/-3 | Did not do completely comprehensive; also failed to separate vertex-only settings from GA settings.|
-| [yml-for-vidconfig.md](../.public-agdocs/specs/yml-for-vidconfig.md) | Generate yaml config and loading method for GenerateVideosConfig with pytests in ./tests/ | [f422450](https://github.com/sutt/vidstr/commit/f422450) | +46/-8 | +76/-0 | Same as above|
-| [gen-with-last-frame.md](../.public-agdocs/specs/gen-with-last-frame.md) | Modify generate_video to accept optional last_frame arg and add CLI param -l/--last-frame | [af158f9](https://github.com/sutt/vidstr/commit/af158f9) | +23/-4 | n/a | read the documentation well |
-
 ## v0.1.3
 
 | Task File | Description | Commit |
@@ -37,6 +25,50 @@ Looks at tasks and associated commit solutions generated each release.
 | [stuck-gif.md](../.public-agdocs/specs/stuck-gif.md) | Debug and fix MP4 to GIF conversion that gets stuck during PIL image quantization process | n/a |
 | [bad-import.md](../.public-agdocs/specs/bad-import.md) | Debug and fix MoviePy module import error when running mp4_to_gif.py | n/a |
 | [clip-vid.md](../.public-agdocs/specs/clip-vid.md) | Use MoviePy to create video clipping utility that outputs MP4 clipped to specified start and end time interval | n/a |
+
+```
+120820c release: v0.1.3
+8fef8db specs: v0.1.3
+2798110 fix: updates to refactor of extend+continue
+c60da48 refactor: update continue-video to use video input and loop
+5a9b469 fix: change cli descr
+f848c98 feat: make --num-vids optional and default to 1
+9ea2a2b docs: adding heavy assets for tutorial
+e690089 docs: add tutorial-v1 (sans assets)
+5651dcb fix: minor updates to loop-video
+73a45b7 feat: add loop-video command
+09d27e4 fix: apply scripting relative paths to concat_vid
+432e6d4 fix: resolve relative paths in get_frame.py for scripting
+bc43e98 refactor: strip numeric suffixes and always add new counter
+975d6b9 fix: expand scripting relative paths to all inputs
+24ac3b0 feat: allow scripting the package with relative paths
+ddcd048 feat: add extend-video command to generate and concatenate videos
+a0cf8dd fix: manual fixups for impl of concat-vid
+5176ec1 feat: impl concat-vid with claude (agro auto-commit)
+98f7759 docs: small fixups to cli + readme help text
+090db35 feat: count frames if no frame argument is given
+e11c722 feat: add --num-frame argument to extract a specific frame
+5e89f9c test: fix config tests to account for default values
+429d734 docs: manually update devlog for 0.1.2 notes
+7a5daf5 feat: impl devlog-diffs-1 with claude (agro auto-commit)
+ffe0db2 docs: update devlog manually
+baf28eb feat: impl dev-log-1 with claude (agro auto-commit)
+afd84d9 docs: update readme with links
+11758b8 release: v0.1.2
+```
+
+## v0.1.2
+
+| Task File | Description | Commit | Code Changes (src/root) | Test Changes | Notes |
+|-----------|-------------|--------|-------------------------|--------------|-------|
+| [config-settings.md](../.public-agdocs/specs/config-settings.md) | Add workspace settings to config.yaml for gcs_output_bucket and local_output_dir piped into main.py | [f002d9e](https://github.com/sutt/vidstr/commit/f002d9e) | +18/-4 | n/a | |
+| [profile-config.md](../.public-agdocs/specs/profile-config.md) | Add profile.yaml functionality to supplement config.yaml with override settings and CLI config path option | [90a8343](https://github.com/sutt/vidstr/commit/90a8343) | +50/-12 | n/a | |
+| [dl-bucket.md](../.public-agdocs/specs/dl-bucket.md) | Add functionality to download created products from GCS bucket to output directory with unique filenames | [38e5afe](https://github.com/sutt/vidstr/commit/38e5afe) | +39/-3 | n/a | requires uv sync after package added.|
+| [config-model-names.md](../.public-agdocs/specs/config-model-names.md) | Add config options to yml for image and video generation models (IMAGE_MODEL and VIDEO_MODEL) | [54dfe69](https://github.com/sutt/vidstr/commit/54dfe69) | +8/-5 | n/a | |
+| [yml-config-img.md](../.public-agdocs/specs/yml-config-img.md) | Add extensive configs for image generation to config.yaml including GenerateImagesConfig options and tests | [5fc8fa0](https://github.com/sutt/vidstr/commit/5fc8fa0) | +37/-15 | +54/-3 | Did not do completely comprehensive; also failed to separate vertex-only settings from GA settings.|
+| [yml-for-vidconfig.md](../.public-agdocs/specs/yml-for-vidconfig.md) | Generate yaml config and loading method for GenerateVideosConfig with pytests in ./tests/ | [f422450](https://github.com/sutt/vidstr/commit/f422450) | +46/-8 | +76/-0 | Same as above|
+| [gen-with-last-frame.md](../.public-agdocs/specs/gen-with-last-frame.md) | Modify generate_video to accept optional last_frame arg and add CLI param -l/--last-frame | [af158f9](https://github.com/sutt/vidstr/commit/af158f9) | +23/-4 | n/a | read the documentation well |
+
 
 ```
 11758b8 release: v0.1.2
