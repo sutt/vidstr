@@ -10,8 +10,8 @@ Looks at tasks and associated commit solutions generated each release.
 | [loop-cmd.md](../.public-agdocs/specs/loop-cmd.md) | Add loop-video command that generates video from last frame to first frame with vertex client | [73a45b7](https://github.com/sutt/vidstr/commit/73a45b7) | +81/-0 | n/a | |
 | [scriptable-concatvid.md](../.public-agdocs/specs/scriptable-concatvid.md) | Apply relative paths to concat_vid for external scripting like main.py VIDSTR_CALLER_DIR functionality | [09d27e4](https://github.com/sutt/vidstr/commit/09d27e4) | +28/-1 | n/a | |
 | [scriptable-getframe.md](../.public-agdocs/specs/scriptable-getframe.md) | Apply relative paths to get_frame for external scripting like main.py VIDSTR_CALLER_DIR functionality | [432e6d4](https://github.com/sutt/vidstr/commit/432e6d4) | +12/-0 | n/a | |
-| [alias-cmds.md](../.public-agdocs/specs/alias-cmds.md) | Design command nomenclature for video generation types (gen, cont, loop, extend) | n/a | n/a | n/a | |
-| [cmd-based-fns.md](../.public-agdocs/specs/cmd-based-fns.md) | Control base filenames for output assets based on command type (img.gen, vid.gen, vid.cont, vid.loop, vid.extend) | n/a | n/a | n/a | |
+| [alias-cmds.md](../.public-agdocs/specs/alias-cmds.md) | Design command nomenclature for video generation types (gen, cont, loop, extend) | n/a | n/a | n/a | planned by not impl|
+| [cmd-based-fns.md](../.public-agdocs/specs/cmd-based-fns.md) | Control base filenames for output assets based on command type (img.gen, vid.gen, vid.cont, vid.loop, vid.extend) | n/a | n/a | n/a | planned by not impl|
 | [unique-fn-fix.md](../.public-agdocs/specs/unique-fn-fix.md) | Refactor get_unique_filepath to always start with 001 counter and strip numeric underscore suffixes | [bc43e98](https://github.com/sutt/vidstr/commit/bc43e98) | +9/-8 | n/a | |
 | [compound-1.md](../.public-agdocs/specs/compound-1.md) | Build extend-video command that generates multiple videos and concatenates them using continue-video functionality | [ddcd048](https://github.com/sutt/vidstr/commit/ddcd048) | +98/-4 | n/a | |
 | [concat-fix-tests.md](../.public-agdocs/specs/concat-fix-tests.md) | Fix concat_vid test failures where CLI requires either --files or --dir arguments | n/a | n/a | n/a | |
@@ -19,12 +19,12 @@ Looks at tasks and associated commit solutions generated each release.
 | [count-frames.md](../.public-agdocs/specs/count-frames.md) | Modify get_frame.py to count frames when neither --frame nor --num-frame arguments provided | [090db35](https://github.com/sutt/vidstr/commit/090db35) | +17/-3 | n/a | |
 | [fix-tests.md](../.public-agdocs/specs/fix-tests.md) | Fix config tests that fail due to default model values being added to loaded configurations | [5e89f9c](https://github.com/sutt/vidstr/commit/5e89f9c) | n/a | +8/-2 | |
 | [get-frame-n.md](../.public-agdocs/specs/get-frame-n.md) | Add -n/--num-frame argument to get_frame.py to extract specific frame number with formatted filename | [e11c722](https://github.com/sutt/vidstr/commit/e11c722) | +52/-21 | n/a | |
-| [mp-output-gif-v3.md](../.public-agdocs/specs/mp-output-gif-v3.md) | Create mp4_to_gif.py utility with FPS param, unique filename handling, and pytest support for MP4 to GIF conversion | n/a | n/a | n/a | |
-| [mp-output-gif-v2.md](../.public-agdocs/specs/mp-output-gif-v2.md) | Create mp4_to_gif.py utility with CLI, infinite play GIFs, unique filename handling, and VIDSTR_CALLER_DIR support | n/a | n/a | n/a | |
-| [mp-output-gif.md](../.public-agdocs/specs/mp-output-gif.md) | Create utility module with CLI to convert MP4 to infinite-play GIF using MoviePy with pytest support | n/a | n/a | n/a | |
-| [stuck-gif.md](../.public-agdocs/specs/stuck-gif.md) | Debug and fix MP4 to GIF conversion that gets stuck during PIL image quantization process | n/a | n/a | n/a | |
-| [bad-import.md](../.public-agdocs/specs/bad-import.md) | Debug and fix MoviePy module import error when running mp4_to_gif.py | n/a | n/a | n/a | |
-| [clip-vid.md](../.public-agdocs/specs/clip-vid.md) | Use MoviePy to create video clipping utility that outputs MP4 clipped to specified start and end time interval | n/a | n/a | n/a | |
+| [mp-output-gif-v3.md](../.public-agdocs/specs/mp-output-gif-v3.md) | Create mp4_to_gif.py utility with FPS param, unique filename handling, and pytest support for MP4 to GIF conversion | n/a | n/a | n/a | implemented in 0.1.4, see [study](https://github.com/sutt/agro/blob/master/docs/case-studies/aba-vidstr-2.md)|
+| [mp-output-gif-v2.md](../.public-agdocs/specs/mp-output-gif-v2.md) | Create mp4_to_gif.py utility with CLI, infinite play GIFs, unique filename handling, and VIDSTR_CALLER_DIR support | n/a | n/a | n/a | implemented in 0.1.4, see [study](https://github.com/sutt/agro/blob/master/docs/case-studies/aba-vidstr-2.md)|
+| [mp-output-gif.md](../.public-agdocs/specs/mp-output-gif.md) | Create utility module with CLI to convert MP4 to infinite-play GIF using MoviePy with pytest support | n/a | n/a | n/a | implemented in 0.1.4, see [study](https://github.com/sutt/agro/blob/master/docs/case-studies/aba-vidstr-2.md)|
+| [stuck-gif.md](../.public-agdocs/specs/stuck-gif.md) | Debug and fix MP4 to GIF conversion that gets stuck during PIL image quantization process | n/a | n/a | n/a | secondary task for mp-output-gif |
+| [bad-import.md](../.public-agdocs/specs/bad-import.md) | Debug and fix MoviePy module import error when running mp4_to_gif.py | n/a | n/a | n/a | secondary task for mp-output-gif |
+| [clip-vid.md](../.public-agdocs/specs/clip-vid.md) | Use MoviePy to create video clipping utility that outputs MP4 clipped to specified start and end time interval | n/a | n/a | n/a | implemented in v0.1.4|
 
 ```
 120820c release: v0.1.3
